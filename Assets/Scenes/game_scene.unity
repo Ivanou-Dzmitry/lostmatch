@@ -1878,6 +1878,8 @@ MonoBehaviour:
   refillDelay: 0.5
   tilePrefab: {fileID: 3682901610281065133, guid: 56ade869d902f6f4b951722081ea8ae7, type: 3}
   breakableTilePrefab: {fileID: 6527145333783162085, guid: 4a65e9f68bbc3444cac79e8768735337, type: 3}
+  lockTilePrefab: {fileID: 2549421589202323360, guid: c470caa76780be340a6191492f6afedd, type: 3}
+  concreteTilePrefab: {fileID: 1127882633959337833, guid: 152ce459b2662cb4b9b7a02396b53827, type: 3}
   dots:
   - {fileID: 6998997659268194242, guid: 6b865f15982fe624f9a1c45366647115, type: 3}
   - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
@@ -1885,7 +1887,22 @@ MonoBehaviour:
   - {fileID: 3208557242404312580, guid: 9042c7df9b5a7124bbea3b9e51471a95, type: 3}
   - {fileID: 6550258979685578383, guid: 15611902203721f4191f3111b0f799b7, type: 3}
   destroyEffect: {fileID: 7008526993925193625, guid: f9321d6d8d601ad41a5e322d1312b756, type: 3}
-  boardLayout: []
+  boardLayout:
+  - x: 0
+    y: 0
+    tileKind: 0
+  - x: 0
+    y: 0
+    tileKind: 0
+  - x: 0
+    y: 0
+    tileKind: 0
+  - x: 0
+    y: 0
+    tileKind: 0
+  matchTypeClass:
+    type: 0
+    color: 
   currentDot: {fileID: 0}
   baseValue: 1
   streakValue: 0

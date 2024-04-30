@@ -8,8 +8,8 @@ using Unity.VisualScripting;
 
 public class dot : MonoBehaviour
 {
-    private Vector2 firstTouchPos; //default
-    private Vector2 finalTouchPos;
+    private Vector2 firstTouchPos = Vector2.zero; //default
+    private Vector2 finalTouchPos = Vector2.zero;
 
     //classes
     private game_board gameBoardClass;
@@ -42,9 +42,6 @@ public class dot : MonoBehaviour
     public GameObject rowBomb;
     public GameObject colorBomb;
     public GameObject wrapBomb;
-
-    //public SpriteRenderer usedSprite;
-
 
     // Start is called before the first frame update
     void Start()
@@ -112,12 +109,10 @@ public class dot : MonoBehaviour
                 gameBoardClass.allDots[column, row] = this.gameObject;
                 findMatchesClass.FindAllMatches();
             }            
-        } else
-        {
+        } else {
             //directly set pos
             tempPos = new Vector2(targetX, transform.position.y);
             transform.position = tempPos;
-            gameBoardClass.allDots[column, row] = this.gameObject;
         }
 
         //Pos Y
@@ -132,8 +127,7 @@ public class dot : MonoBehaviour
                 gameBoardClass.allDots[column, row] = this.gameObject;
                 findMatchesClass.FindAllMatches();
             }            
-        } else
-        {
+        } else {
             //directly set pos
             tempPos = new Vector2(transform.position.x, targetY);
             transform.position = tempPos;
@@ -241,15 +235,23 @@ public class dot : MonoBehaviour
         previousRow = row;
         previousColumn = column;
 
-        if(otherDot != null)
+        //lock tiles 
+        if (gameBoardClass.lockCells[column, row] == null && gameBoardClass.lockCells[column + (int)direction.x, row + (int)direction.y] == null)
         {
-            otherDot.GetComponent<dot>().column += -1 * (int)direction.x;
-            otherDot.GetComponent<dot>().row += -1 * (int)direction.y;
+            if (otherDot != null)
+            {
+                otherDot.GetComponent<dot>().column += -1 * (int)direction.x;
+                otherDot.GetComponent<dot>().row += -1 * (int)direction.y;
 
-            column += (int)direction.x;
-            row += (int)direction.y;
+                column += (int)direction.x;
+                row += (int)direction.y;
 
-            StartCoroutine(CheckMoveCo());
+                StartCoroutine(CheckMoveCo());
+            }
+            else
+            {
+                gameBoardClass.currentState = GameState.move;
+            }
         }
         else
         {

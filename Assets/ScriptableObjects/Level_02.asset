@@ -14,7 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 6
   height: 6
-  boardLayout: []
+  boardLayout:
+  - x: 3
+    y: 3
+    tileKind: 2
+  - x: 4
+    y: 4
+    tileKind: 3
   dots:
   - {fileID: 6998997659268194242, guid: 6b865f15982fe624f9a1c45366647115, type: 3}
   - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
@@ -26,10 +32,10 @@ MonoBehaviour:
     counterValue: 20
   levelGoals:
   - numberGoalsNeeded: 6
-    numberCollectedGoals: 0
+    numberCollectedGoals: 3
     goalSprite: {fileID: 21300000, guid: 44f781220bcf36e4b8124c73994aa374, type: 3}
     matchValue: element_01
   - numberGoalsNeeded: 8
-    numberCollectedGoals: 0
+    numberCollectedGoals: 9
     goalSprite: {fileID: 21300000, guid: 03d352bbf6a39254da53477ffd1f7462, type: 3}
     matchValue: element_02
