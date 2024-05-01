@@ -73,6 +73,7 @@
     <Compile Include="Assets\Scripts\sound_manager.cs" />
     <Compile Include="Assets\Scripts\dot.cs" />
     <Compile Include="Assets\Scripts\score_manager.cs" />
+    <Compile Include="Assets\Scripts\ui\pause_manager.cs" />
     <Compile Include="Assets\Scripts\goal_panel.cs" />
     <Compile Include="Assets\Scripts\Levels\to_levels.cs" />
     <Compile Include="Assets\Scripts\end_game_manager.cs" />

@@ -17,7 +17,11 @@ public class confirm_panel : MonoBehaviour
     public TMP_Text starText;
     public TMP_Text highScoreText;
     private int highScore;
-    
+
+    [Header("Stars")]
+    public Sprite starOffSprite;
+    public Sprite starOnSprite;
+
 
     //class
     private game_data gameDataClass;
@@ -32,7 +36,7 @@ public class confirm_panel : MonoBehaviour
         //deactivate stars
         for (int i = 0; i < activeStars; i++)
         {
-            stars[i].enabled = false;
+            stars[i].sprite = starOffSprite;
         }
 
         LoadData(); //from file
@@ -48,9 +52,9 @@ public class confirm_panel : MonoBehaviour
         {
             activeStars = gameDataClass.saveData.stars[level - 1];
             highScore = gameDataClass.saveData.highScore[level - 1];
+            
+            Debug.Log("activeStars: " + activeStars + "/" + highScore);
         }
-
-        //Debug.Log("activeStars: " + activeStars);
     }
 
     void SetText()
@@ -63,13 +67,8 @@ public class confirm_panel : MonoBehaviour
     {
         for (int i = 0; i < activeStars; i++)
         {
-            stars[i].enabled = true;
+            stars[i].sprite = starOnSprite;
         }
-    }
-
-    public void Cancel()
-    {
-        this.gameObject.SetActive(false);
     }
 
     public void Play()

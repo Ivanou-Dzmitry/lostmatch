@@ -13,6 +13,7 @@ public class score_manager : MonoBehaviour
     public int score;
 
     public Slider scoreBar;
+    private int numberStars;
 
     //class
     private game_data gameDataClass;
@@ -38,19 +39,48 @@ public class score_manager : MonoBehaviour
     {
         score += amountToIncrease;
 
+        for (int i = 0; i < gameBoardClass.scoreGoals.Length; i++)
+        {
+            if(score > gameBoardClass.scoreGoals[i] && numberStars < i + 1)
+            {
+                numberStars++;  
+            }
+        }
+
         if(gameDataClass != null)
         {
             int hiScore = gameDataClass.saveData.highScore[gameBoardClass.level];
+
             if (score > hiScore)
             {
-                gameDataClass.saveData.highScore[gameBoardClass.level] = score;
+                gameDataClass.saveData.highScore[gameBoardClass.level] = score;                
             }
+
+            int currentStarsCount = gameDataClass.saveData.stars[gameBoardClass.level];
+
+            if (numberStars > currentStarsCount)
+            {
+                gameDataClass.saveData.stars[gameBoardClass.level] = numberStars;
+            }
+
             gameDataClass.Save();
         }
 
         UpdateBar();
 
     }
+
+    private void OnApplicationPause()
+    {
+        if (gameDataClass != null)
+        {
+            gameDataClass.saveData.stars[gameBoardClass.level] = numberStars;
+        }
+
+        gameDataClass.Save();
+    }
+    
+
 
     private void UpdateBar()
     {

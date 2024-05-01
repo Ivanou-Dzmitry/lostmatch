@@ -9,9 +9,19 @@ public class sound_manager : MonoBehaviour
 
     public void PlayDestroySound()
     {
-        int clipToPlay = 0;
 
-        destroySound[clipToPlay].Play();
+        if (PlayerPrefs.HasKey("Sound"))
+        {
+            if(PlayerPrefs.GetInt("Sound") == 1)
+            {
+                int clipToPlay = 0;
+                destroySound[clipToPlay].Play();
+            }
+        }
+        else
+        {
+            int clipToPlay = 0;
+            destroySound[clipToPlay].Play();
+        }
     }
-
 }

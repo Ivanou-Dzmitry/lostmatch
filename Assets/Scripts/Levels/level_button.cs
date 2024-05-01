@@ -16,7 +16,11 @@ public class level_button : MonoBehaviour
     public TMP_Text levelText;
     public int level;
     public GameObject confirmPanel;
-    
+
+    [Header("Stars")]
+    public Sprite starOffSprite;
+    public Sprite starOnSprite;
+
 
     private game_data gameDataClass;
 
@@ -50,7 +54,9 @@ public class level_button : MonoBehaviour
         }
 
         //active stars
-        activeStars = gameDataClass.saveData.stars[level -1];   
+        activeStars = gameDataClass.saveData.stars[level -1];
+
+        //Debug.Log(activeStars);
     }
 
     void ChooseSprite()
@@ -77,15 +83,14 @@ public class level_button : MonoBehaviour
         //show stars
         for (int i = 0; i < activeStars; i++)
         {
-            stars[i].enabled = true;
+            stars[i].sprite = starOnSprite;
         }
     }
 
     public void ConfirmPanel(int level)
     {
         confirmPanel.GetComponent<confirm_panel>().level = level;
-
-        confirmPanel.SetActive(true);        
+        confirmPanel.SetActive(true);
     }
 
 }

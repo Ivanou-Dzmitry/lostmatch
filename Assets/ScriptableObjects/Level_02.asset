@@ -26,16 +26,16 @@ MonoBehaviour:
   - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
   - {fileID: 4480997535196168054, guid: d5ca9b3f6961fa040b6373c035b19b90, type: 3}
   - {fileID: 3208557242404312580, guid: 9042c7df9b5a7124bbea3b9e51471a95, type: 3}
-  scoreGoals: c80000002c010000
+  scoreGoals: 0600000008000000
   egRequrimentsLVL:
     gameType: 0
     counterValue: 20
   levelGoals:
   - numberGoalsNeeded: 6
-    numberCollectedGoals: 3
+    numberCollectedGoals: 0
     goalSprite: {fileID: 21300000, guid: 44f781220bcf36e4b8124c73994aa374, type: 3}
     matchValue: element_01
   - numberGoalsNeeded: 8
-    numberCollectedGoals: 9
+    numberCollectedGoals: 0
     goalSprite: {fileID: 21300000, guid: 03d352bbf6a39254da53477ffd1f7462, type: 3}
     matchValue: element_02

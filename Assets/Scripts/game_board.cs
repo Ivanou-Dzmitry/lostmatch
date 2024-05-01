@@ -59,6 +59,7 @@ public class game_board : MonoBehaviour
     public GameObject breakableTilePrefab; 
     public GameObject lockTilePrefab; //lock object
     public GameObject concreteTilePrefab; //lock object
+    public GameObject slimeTilePrefab; //lock object
 
     public GameObject[] dots;
     public GameObject[,] allDots;
@@ -71,6 +72,7 @@ public class game_board : MonoBehaviour
     private bool[,] blankCells;
     //for break
     private tile_back[,] breakableCells;
+    private tile_back[,] slimeCells;
     //for lock
     public tile_back[,] lockCells;
     //for concrete
@@ -87,6 +89,7 @@ public class game_board : MonoBehaviour
     private score_manager scoreManagerClass;
     private sound_manager soundManagerClass;
     private goal_manager goalManagerClass;
+    private bool makeSlime = true;
 
     //for score
     public int baseValue = 1;
@@ -145,6 +148,7 @@ public class game_board : MonoBehaviour
         breakableCells = new tile_back[width, height];
         lockCells = new tile_back[width, height];
         concreteCells = new tile_back[width, height];
+        slimeCells = new tile_back[width, height];
 
         allDots = new GameObject[width, height];
 
@@ -224,6 +228,26 @@ public class game_board : MonoBehaviour
         }
     }
 
+    private void GenSlimeTiles()
+    {
+        for (int i = 0; i < boardLayout.Length; i++)
+        {
+            if (boardLayout[i].tileKind == TileKind.Slime)
+            {
+                Vector2 tempPos = new Vector2(boardLayout[i].x, boardLayout[i].y);
+
+                GameObject tile = Instantiate(slimeTilePrefab, tempPos, Quaternion.identity);
+
+                slimeCells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
+
+                Vector2 tilePosition = new Vector2(boardLayout[i].x, boardLayout[i].y);
+                GameObject boardTile1 = Instantiate(tilePrefab, tilePosition, Quaternion.identity) as GameObject;
+                boardTile1.transform.parent = this.transform;
+
+            }
+        }
+    }
+
 
     private void SetUp()
     {
@@ -235,11 +259,13 @@ public class game_board : MonoBehaviour
 
         GenConcreteTiles();
 
+        GenSlimeTiles();
+
         for (int i = 0; i < width; i++)
         {
             for(int j = 0; j < height; j++)
             {
-                if (!blankCells[i, j] && !concreteCells[i, j])
+                if (!blankCells[i, j] && !concreteCells[i, j] && !slimeCells[i,j])
                 {              
                 //temp position and offset
                 Vector2 tempPos = new Vector2(i, j + offSet);
@@ -504,6 +530,7 @@ public class game_board : MonoBehaviour
             }
 
             DamageConcrete(column, row);
+            DamageSlime(column, row);
 
             //goal
             if (goalManagerClass != null)
@@ -537,16 +564,13 @@ public class game_board : MonoBehaviour
     {
         for (int i = 0; i < width; i++)
         {
-            for (int j = 0; j < height; j++)
+            if (concreteCells[i, row])
             {
-                if (concreteCells[i, j])
-                {
-                    concreteCells[i, row].TakeDamage(1);
+                concreteCells[i, row].TakeDamage(1);
 
-                    if (concreteCells[i, row].hitPoints <= 0)
-                    {
-                        concreteCells[i, row] = null;
-                    }
+                if (concreteCells[i, row].hitPoints <= 0)
+                {
+                    concreteCells[i, row] = null;
                 }
             }
         }
@@ -556,16 +580,13 @@ public class game_board : MonoBehaviour
     {
         for (int i = 0; i < width; i++)
         {
-            for (int j = 0; j < height; j++)
+            if (concreteCells[column, i])
             {
-                if (concreteCells[i, j])
-                {
-                    concreteCells[column, i].TakeDamage(1);
+                concreteCells[column, i].TakeDamage(1);
 
-                    if (concreteCells[column, i].hitPoints <= 0)
-                    {
-                        concreteCells[column, i] = null;
-                    }
+                if (concreteCells[column, i].hitPoints <= 0)
+                {
+                    concreteCells[column, i] = null;
                 }
             }
         }
@@ -625,7 +646,145 @@ public class game_board : MonoBehaviour
                 }
             }
         }
+    }
 
+    private void DamageSlime(int column, int row)
+    {
+        if (column > 0)
+        {
+            if (slimeCells[column - 1, row])
+            {
+                slimeCells[column - 1, row].TakeDamage(1);
+
+                if (slimeCells[column - 1, row].hitPoints <= 0)
+                {
+                    slimeCells[column - 1, row] = null;
+                }
+                makeSlime = false;
+            }
+        }
+
+        if (column < width - 1)
+        {
+            if (slimeCells[column + 1, row])
+            {
+                slimeCells[column + 1, row].TakeDamage(1);
+
+                if (slimeCells[column + 1, row].hitPoints <= 0)
+                {
+                    slimeCells[column + 1, row] = null;
+                }
+
+                makeSlime = false;
+            }
+        }
+
+        if (row > 0)
+        {
+            if (slimeCells[column, row - 1])
+            {
+                slimeCells[column, row - 1].TakeDamage(1);
+
+                if (slimeCells[column, row - 1].hitPoints <= 0)
+                {
+                    slimeCells[column, row - 1] = null;
+                }
+
+                makeSlime = false;
+            }
+        }
+
+        if (row < height - 1)
+        {
+            if (slimeCells[column, row + 1])
+            {
+
+                slimeCells[column, row + 1].TakeDamage(1);
+
+                if (slimeCells[column, row + 1].hitPoints <= 0)
+                {
+                    slimeCells[column, row + 1] = null;
+                }
+
+                makeSlime = false;
+            }
+        }
+    }
+
+    private void CheckToMakeSlime()
+    {
+        for (int i = 0; i<width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                if (slimeCells[i,j] && makeSlime)
+                {
+                    BirthSlimes();
+                    return;
+                }
+            }
+        }
+    }
+
+    private Vector2 CheckForAdj(int column, int row)
+    {
+
+        if (column < width - 1 && allDots[column + 1, row])
+        {
+            return Vector2.right;
+        }
+
+        if (column > 0 && allDots[column - 1, row])
+        {
+            return Vector2.left;
+        }
+
+
+        if (row < height - 1 && allDots[column, row + 1])
+        {
+            return Vector2.up;
+        }
+
+
+        if (row > 0 && allDots[column, row - 1])
+        {
+            return Vector2.down;
+        }
+
+        return Vector2.zero;
+    }
+
+
+    private void BirthSlimes()
+    {
+        bool slime = false;
+
+        int loops = 0;
+
+        while (!slime && loops < 200)
+        {
+            int newX = Random.Range(0, width);  
+            int newY = Random.Range(0, height);
+
+            if (slimeCells[newX, newY])
+            {
+                Vector2 adj = CheckForAdj(newX, newY);  
+
+                if (adj != Vector2.zero)
+                {
+                    Destroy(allDots[newX + (int)adj.x, newY + (int)adj.y]);
+                    Vector2 tempPos = new Vector2(newX + (int)adj.x, newY + (int)adj.y);
+
+                    //add slime
+                    GameObject tile = Instantiate(slimeTilePrefab, tempPos, Quaternion.identity);
+                    slimeCells[newX + (int)adj.x, newY + (int)adj.y] = tile.GetComponent<tile_back>();
+
+                    slime = true;
+                }
+            }
+
+            loops++;
+        }
     }
 
     public void DestroyMatches()
@@ -658,7 +817,7 @@ public class game_board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (allDots[i, j] == null && !blankCells[i, j] && !concreteCells[i, j]) //add skip to fill cells
+                if (allDots[i, j] == null && !blankCells[i, j] && !concreteCells[i, j] && !slimeCells[i, j]) //add skip to fill cells
                 {
 
                     for(int k = j+1; k < height; k++)
@@ -684,7 +843,7 @@ public class game_board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (allDots[i, j] == null && !blankCells[i,j] && !concreteCells[i, j]) //not refill here
+                if (allDots[i, j] == null && !blankCells[i,j] && !concreteCells[i, j] && !slimeCells[i, j]) //not refill here
                 {
                     Vector2 tempPosition = new Vector2(i, j + offSet);
 
@@ -753,7 +912,10 @@ public class game_board : MonoBehaviour
         
         //for bomb
         currentDot = null;
-        
+
+        CheckToMakeSlime();
+
+
         if (IsDeadLock())
         {
             ShuffleBoard();
@@ -761,7 +923,11 @@ public class game_board : MonoBehaviour
 
         yield return new WaitForSeconds(refillDelay);
 
-        currentState = GameState.move;
+        if(currentState != GameState.pause)
+            currentState = GameState.move;
+
+        makeSlime = true;
+
         streakValue = 1;
     }
 
@@ -884,7 +1050,7 @@ public class game_board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (!blankCells[i, j] && !concreteCells[i, j])
+                if (!blankCells[i, j] && !concreteCells[i, j] && !slimeCells[i, j]) //list of not
                 {
                     int cellToUse = Random.Range(0, newBoard.Count);
 
