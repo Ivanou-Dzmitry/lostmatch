@@ -67,7 +67,7 @@ public class goal_manager : MonoBehaviour
 
             goal_panel introPanel = introGoal.GetComponent<goal_panel>();
             introPanel.thisSprite = levelGoals[i].goalSprite;
-            introPanel.thisString = "0/" + levelGoals[i].numberGoalsNeeded;
+            introPanel.thisString = "" + levelGoals[i].numberGoalsNeeded; //goals 
 
             //ingame
             GameObject ingameGoal = Instantiate(goalPrefab, goalGameParent.transform.position, Quaternion.identity);
@@ -79,7 +79,7 @@ public class goal_manager : MonoBehaviour
             currentGoals.Add(gamePanel);
 
             gamePanel.thisSprite = levelGoals[i].goalSprite;
-            gamePanel.thisString = "0/" + levelGoals[i].numberGoalsNeeded;
+            gamePanel.thisString = "" + levelGoals[i].numberGoalsNeeded; //goals 
 
         }
     }

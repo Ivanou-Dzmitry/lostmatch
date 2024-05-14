@@ -12,23 +12,15 @@ public class to_levels : MonoBehaviour
     private void Start()
     {
         //class
-        gameDataClass = FindObjectOfType<game_data>();
-        gameBoardClass = FindObjectOfType<game_board>();
+        gameDataClass = GameObject.FindWithTag("GameData").GetComponent<game_data>();
+        gameBoardClass = GameObject.FindWithTag("GameBoard").GetComponent<game_board>();
     }
 
     public void WinOK()
     {
         if (gameDataClass != null)
         {
-            try
-            {
-                gameDataClass.saveData.isActive[gameBoardClass.level + 1] = true;
-            }
-            catch
-            {
-                throw;
-            }
-            
+            gameDataClass.saveData.isActive[gameBoardClass.level + 1] = true;            
             gameDataClass.Save();
         }
 

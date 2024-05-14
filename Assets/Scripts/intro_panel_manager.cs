@@ -9,17 +9,11 @@ public class intro_panel_manager : MonoBehaviour
     {
         if (introPanel != null)
         {
-            StartCoroutine(GameStratCo());
+            StartCoroutine(GameStartCo());
         }        
     }
 
-
-    public void GameOver()
-    {
-
-    }
-
-    IEnumerator GameStratCo()
+    IEnumerator GameStartCo()
     {
         yield return new WaitForSeconds(.5f);
 

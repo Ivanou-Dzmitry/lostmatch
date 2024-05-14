@@ -82,12 +82,7 @@ public class dot : MonoBehaviour
     //debug only!
     private void OnMouseOver()
     {
-        if (Input.GetMouseButton(1))
-        {
-            isWrapBomb = true;
-            GameObject marker = Instantiate(wrapBomb, transform.position, Quaternion.identity);
-            marker.transform.parent = this.transform;
-        }
+        //Debug
     }
 
 
