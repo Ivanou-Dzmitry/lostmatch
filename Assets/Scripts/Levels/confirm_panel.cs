@@ -14,8 +14,9 @@ public class confirm_panel : MonoBehaviour
 
     [Header("UI")]
     public Image[] stars;
-    public TMP_Text starText;
+    //public TMP_Text starText;
     public TMP_Text highScoreText;
+    public TMP_Text headerText;
     private int highScore;
 
     [Header("Stars")]
@@ -53,14 +54,15 @@ public class confirm_panel : MonoBehaviour
             activeStars = gameDataClass.saveData.stars[level - 1];
             highScore = gameDataClass.saveData.highScore[level - 1];
             
-            Debug.Log("activeStars: " + activeStars + "/" + highScore);
+            //Debug.Log("activeStars: " + activeStars + "/" + highScore);
         }
     }
 
     void SetText()
     {
-        highScoreText.text = "" + highScore;
-        starText.text = "" + activeStars + "/3";
+        highScoreText.text = "Items collected: " + highScore;
+        headerText.text = "Level " + level + " Records";
+        //starText.text = "" + activeStars + "/3";
     }
 
     void ActivateStars()
