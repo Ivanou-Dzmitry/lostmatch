@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class level_button : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class level_button : MonoBehaviour
     [Header("Level UI")]
     public Image[] stars;
     public TMP_Text levelText;
+    public TMP_Text debugText;
     public int level;
     public GameObject confirmPanel;
 
@@ -28,8 +30,8 @@ public class level_button : MonoBehaviour
     void Start()
     {
         //class
-        gameDataClass = FindObjectOfType<game_data>();
-
+        gameDataClass = GameObject.FindWithTag("GameData").GetComponent<game_data>();
+       
         myButton = GetComponent<Button>();
 
         LoadData();
@@ -40,9 +42,10 @@ public class level_button : MonoBehaviour
 
     void LoadData()
     {
+
         //game data check
-        if(gameDataClass != null)
-        {
+        if (gameDataClass != null)
+        {           
             if (gameDataClass.saveData.isActive[level - 1])
             {
                 isActive = true;
@@ -55,8 +58,6 @@ public class level_button : MonoBehaviour
 
         //active stars
         activeStars = gameDataClass.saveData.stars[level -1];
-
-        //Debug.Log(activeStars);
     }
 
     void ChooseSprite()
@@ -91,6 +92,22 @@ public class level_button : MonoBehaviour
     {
         confirmPanel.GetComponent<confirm_panel>().level = level;
         confirmPanel.SetActive(true);
+    }
+
+
+    public void DebugText(string text)
+    {
+        Scene scene = SceneManager.GetActiveScene();
+
+        if (scene.name == "levels")
+        {
+            string tempText = debugText.text;
+            debugText.text = "\n" + tempText + text;
+        }
+        else
+        {
+            Debug.Log(text);
+        }
     }
 
 }

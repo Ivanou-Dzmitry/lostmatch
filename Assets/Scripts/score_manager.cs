@@ -10,6 +10,7 @@ public class score_manager : MonoBehaviour
     private game_board gameBoardClass;
 
     public TMP_Text scoreText;
+    public TMP_Text debugText;
     public int score;
 
     public Slider scoreBar;
@@ -23,9 +24,17 @@ public class score_manager : MonoBehaviour
     {
         //class
         gameBoardClass = GameObject.FindWithTag("GameBoard").GetComponent<game_board>();
-        gameDataClass = FindObjectOfType<game_data>();
+        gameDataClass = GameObject.FindWithTag("GameData").GetComponent<game_data>();
+
+        //gameDataClass.Load();
 
         UpdateBar();
+
+        if (gameDataClass != null)
+        {
+            gameDataClass.Load();
+        }
+
     }
 
     // Update is called once per frame
@@ -41,15 +50,19 @@ public class score_manager : MonoBehaviour
 
         for (int i = 0; i < gameBoardClass.scoreGoals.Length; i++)
         {
-            if(score > gameBoardClass.scoreGoals[i] && numberStars < i + 1)
+            if (score > gameBoardClass.scoreGoals[i] && numberStars < i + 1)
             {
-                numberStars++;  
+                numberStars++;
             }
         }
 
-        if(gameDataClass != null)
+        //DebugText("ReadFromsaveData:" + gameDataClass.saveData.isActive.Length);
+
+        if (gameDataClass != null)
         {
             int hiScore = gameDataClass.saveData.highScore[gameBoardClass.level];
+
+            DebugText("Score:" + hiScore + "-" + score);
 
             if (score > hiScore)
             {
@@ -63,8 +76,8 @@ public class score_manager : MonoBehaviour
                 gameDataClass.saveData.stars[gameBoardClass.level] = numberStars;
             }
 
-            gameDataClass.Save();
-        }
+            gameDataClass.SaveToFile();
+         }
 
         UpdateBar();
 
@@ -75,9 +88,9 @@ public class score_manager : MonoBehaviour
         if (gameDataClass != null)
         {
             gameDataClass.saveData.stars[gameBoardClass.level] = numberStars;
-        }
-
-        gameDataClass.Save();
+            
+            gameDataClass.SaveToFile();
+        }        
     }
     
 
@@ -89,6 +102,11 @@ public class score_manager : MonoBehaviour
             int scoreGoalsLength = gameBoardClass.scoreGoals.Length;
             scoreBar.value = (float)score / (float)gameBoardClass.scoreGoals[scoreGoalsLength - 1];
         }
+    }
+
+    private void DebugText(string text)
+    {
+        debugText.text = debugText.text + "/_/" + text;
     }
 
 }

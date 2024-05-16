@@ -21,7 +21,7 @@ public class to_levels : MonoBehaviour
         if (gameDataClass != null)
         {
             gameDataClass.saveData.isActive[gameBoardClass.level + 1] = true;            
-            gameDataClass.Save();
+            gameDataClass.SaveToFile();
         }
 
         SceneManager.LoadScene(sceneToLoad);

@@ -59,11 +59,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\ScriptableObjects\world.cs" />
-    <Compile Include="Assets\Scripts\intro_panel_manager.cs" />
     <Compile Include="Assets\Scripts\Levels\confirm_panel.cs" />
-    <Compile Include="Assets\Scripts\ui_manager.cs" />
     <Compile Include="Assets\Scripts\ScriptableObjects\level.cs" />
     <Compile Include="Assets\Scripts\game_board.cs" />
+    <Compile Include="Assets\Scripts\ui\ui_manager.cs" />
+    <Compile Include="Assets\Scripts\ui\intro_panel_manager.cs" />
     <Compile Include="Assets\Scripts\tile_back.cs" />
     <Compile Include="Assets\Scripts\main_menu.cs" />
     <Compile Include="Assets\Scripts\GameDataScripts\game_data.cs" />
@@ -74,11 +74,11 @@
     <Compile Include="Assets\Scripts\dot.cs" />
     <Compile Include="Assets\Scripts\score_manager.cs" />
     <Compile Include="Assets\Scripts\ui\pause_manager.cs" />
-    <Compile Include="Assets\Scripts\goal_panel.cs" />
     <Compile Include="Assets\Scripts\Levels\to_levels.cs" />
     <Compile Include="Assets\Scripts\end_game_manager.cs" />
     <Compile Include="Assets\Scripts\camera_manager.cs" />
     <Compile Include="Assets\Scripts\goal_manager.cs" />
+    <Compile Include="Assets\Scripts\ui\goal_panel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

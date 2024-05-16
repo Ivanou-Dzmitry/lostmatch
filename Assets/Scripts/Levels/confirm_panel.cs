@@ -32,7 +32,7 @@ public class confirm_panel : MonoBehaviour
     void OnEnable()
     {
         //class
-        gameDataClass = FindObjectOfType<game_data>();
+        gameDataClass = GameObject.FindWithTag("GameData").GetComponent<game_data>();
 
         //deactivate stars
         for (int i = 0; i < activeStars; i++)
@@ -75,6 +75,7 @@ public class confirm_panel : MonoBehaviour
 
     public void Play()
     {
+        //gameDataClass.SaveToFile();
         PlayerPrefs.SetInt("Current_Level", level - 1);
         SceneManager.LoadScene(levelToLoad);
     }
