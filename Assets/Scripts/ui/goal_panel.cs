@@ -8,14 +8,15 @@ public class goal_panel : MonoBehaviour
 
     public Image thisImage;
     public Sprite thisSprite;
+    public Image thisCheck;
+    //public Sprite thisSprite2;
     public TMP_Text thisText;
-    public string thisString;
-
+    public string thisString;    
 
     void SetupGoals()
     {
         thisImage.sprite = thisSprite;
-        thisText.text = thisString;
+        thisText.text = thisString;        
     }
 
     // Start is called before the first frame update

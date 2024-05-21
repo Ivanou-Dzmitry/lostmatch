@@ -42,7 +42,6 @@ public class level_button : MonoBehaviour
 
     void LoadData()
     {
-
         //game data check
         if (gameDataClass != null)
         {           

@@ -48,7 +48,7 @@ public class game_data : MonoBehaviour
     public void SaveToFile()
     {
         string savingData = JsonUtility.ToJson(gameData.saveData, true);
-        string filePath = Application.persistentDataPath + "/" + fileName;
+        string filePath = Path.Combine(Application.persistentDataPath, fileName);
 
         File.WriteAllText(filePath, savingData);
     }
@@ -56,7 +56,7 @@ public class game_data : MonoBehaviour
     public void Load()
     {
         //check file
-        string filePath = Application.persistentDataPath + "/" + fileName;
+        string filePath = Path.Combine(Application.persistentDataPath, fileName);
 
         if (File.Exists(filePath))
         {            

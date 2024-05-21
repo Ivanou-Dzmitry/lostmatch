@@ -13,6 +13,8 @@ public class camera_manager : MonoBehaviour
     public float padding = 1;
     public float yOffset = 1;
 
+    public GameObject backImage;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,23 +34,10 @@ public class camera_manager : MonoBehaviour
 
         Camera.main.orthographicSize = 8.2f;
 
-/*        if (gameBoardClass.width == gameBoardClass.height)
-        {
-            Camera.main.orthographicSize = 6.5f;
-        }
+        //background
+        backImage.transform.position = new Vector3(temPos.x, temPos.y, 0);
 
-        if (gameBoardClass.width > gameBoardClass.height)
-        {
-            Camera.main.orthographicSize = (gameBoardClass.width / 2) / aspectRatio;
-        }
-
-        if (gameBoardClass.width < gameBoardClass.height)
-        {
-            Camera.main.orthographicSize = (gameBoardClass.height / 2);
-        }
-*/
-        
-        //Debug.Log(gameBoardClass.width + "/" + gameBoardClass.height);
+        //Debug.Log(temPos);
     }
 
 }

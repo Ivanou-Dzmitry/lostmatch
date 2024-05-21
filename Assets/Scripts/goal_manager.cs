@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [System.Serializable]
@@ -80,7 +81,6 @@ public class goal_manager : MonoBehaviour
 
             gamePanel.thisSprite = levelGoals[i].goalSprite;
             gamePanel.thisString = "" + levelGoals[i].numberGoalsNeeded; //goals 
-
         }
     }
 
@@ -92,12 +92,17 @@ public class goal_manager : MonoBehaviour
 
         for (int i = 0; i < levelGoals.Length; i++)
         {
-            currentGoals[i].thisText.text = "" + levelGoals[i].numberCollectedGoals + "/" + levelGoals[i].numberGoalsNeeded;
-            
+            //currentGoals[i].thisText.text = "" + levelGoals[i].numberCollectedGoals + "/" + levelGoals[i].numberGoalsNeeded;
+            currentGoals[i].thisText.text = "" + (levelGoals[i].numberGoalsNeeded - levelGoals[i].numberCollectedGoals);
+
             if (levelGoals[i].numberCollectedGoals >= levelGoals[i].numberGoalsNeeded)
             {
                 goalsCompleted++;
-                currentGoals[i].thisText.text = "" + levelGoals[i].numberGoalsNeeded + "/" + levelGoals[i].numberGoalsNeeded;
+                //currentGoals[i].thisText.text = "" + levelGoals[i].numberGoalsNeeded + "/" + levelGoals[i].numberGoalsNeeded;
+                currentGoals[i].thisText.text = "";
+                currentGoals[i].thisCheck.enabled = true;
+                //currentGoals[i].gameObject.SetActive(false); //hide panel
+
             }
 
             if (goalsCompleted >= levelGoals.Length)
