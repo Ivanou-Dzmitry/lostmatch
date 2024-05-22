@@ -34,6 +34,8 @@ public class confirm_panel : MonoBehaviour
         //class
         gameDataClass = GameObject.FindWithTag("GameData").GetComponent<game_data>();
 
+
+
         //deactivate stars
         for (int i = 0; i < activeStars; i++)
         {
@@ -56,6 +58,13 @@ public class confirm_panel : MonoBehaviour
             
             //Debug.Log("activeStars: " + activeStars + "/" + highScore);
         }
+
+        //load game immediatly
+        if (highScore == 0)
+        {
+            Play();
+        }
+
     }
 
     void SetText()

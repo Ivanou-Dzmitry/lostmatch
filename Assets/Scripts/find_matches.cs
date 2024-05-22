@@ -7,12 +7,14 @@ public class find_matches : MonoBehaviour
 {
 
     private game_board gameBoardClass;
+
     public List<GameObject> currentMatch = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start()
     {
         gameBoardClass = GameObject.FindWithTag("GameBoard").GetComponent<game_board>();
+
     }
 
     public void FindAllMatches()
@@ -99,7 +101,7 @@ public class find_matches : MonoBehaviour
     {
         if (!currentMatch.Contains(dot))
         {
-            currentMatch.Add(dot);
+            currentMatch.Add(dot);            
         }
 
         dot.GetComponent<dot>().isMatched = true;

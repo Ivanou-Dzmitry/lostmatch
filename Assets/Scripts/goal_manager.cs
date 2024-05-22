@@ -86,7 +86,7 @@ public class goal_manager : MonoBehaviour
 
 
 
-    public void UpdatesGoals()
+    public void UpdateGoals()
     {
         int goalsCompleted = 0;
 
@@ -100,9 +100,7 @@ public class goal_manager : MonoBehaviour
                 goalsCompleted++;
                 //currentGoals[i].thisText.text = "" + levelGoals[i].numberGoalsNeeded + "/" + levelGoals[i].numberGoalsNeeded;
                 currentGoals[i].thisText.text = "";
-                currentGoals[i].thisCheck.enabled = true;
-                //currentGoals[i].gameObject.SetActive(false); //hide panel
-
+                currentGoals[i].thisCheck.enabled = true; //turn check ON               
             }
 
             if (goalsCompleted >= levelGoals.Length)
@@ -118,13 +116,19 @@ public class goal_manager : MonoBehaviour
 
     public void CompareGoal(string goalToCompare)
     {
+        //Debug.Log("GM0: " + levelGoals.Length);
+
+        //Debug.Log("GM0-goalToCompare:" + goalToCompare);
+
         for (int i = 0; i < levelGoals.Length; i++)
         {
+            //Debug.Log("LG: " + levelGoals[i].matchValue);
+
             if (goalToCompare == levelGoals[i].matchValue)
             {
                 levelGoals[i].numberCollectedGoals++;
             }
-        }
+        }        
     }
 
 

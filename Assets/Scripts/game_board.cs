@@ -56,6 +56,8 @@ public class game_board : MonoBehaviour
 
     [Header("Prefabs")]
     public GameObject tilePrefab;
+    public GameObject tileCornerPrefab;
+
     public GameObject breakableTilePrefab; 
     public GameObject lockTilePrefab; //lock object
     public GameObject concreteTilePrefab; //lock object
@@ -111,6 +113,7 @@ public class game_board : MonoBehaviour
         if(PlayerPrefs.HasKey("Current_Level"))
         {
             level = PlayerPrefs.GetInt("Current_Level");
+            //Debug.Log("level: " + level);
         }
 
         if(worldClass != null)
@@ -125,6 +128,8 @@ public class game_board : MonoBehaviour
                     dots = worldClass.levels[level].dots;
 
                     scoreGoals = worldClass.levels[level].scoreGoals;
+
+                    //Debug.Log("scoreGoals: " + scoreGoals[0]);
 
                     boardLayout = worldClass.levels[level].boardLayout;
                 }
@@ -263,18 +268,50 @@ public class game_board : MonoBehaviour
 
         for (int i = 0; i < width; i++)
         {
-            for(int j = 0; j < height; j++)
+            for (int j = 0; j < height; j++)
             {
-                if (!blankCells[i, j] && !concreteCells[i, j] && !slimeCells[i,j])
-                {              
-                //temp position and offset
-                Vector2 tempPos = new Vector2(i, j + offSet);
-                Vector2 tilePos = new Vector2(i, j);
+                if (!blankCells[i, j] && !concreteCells[i, j] && !slimeCells[i, j])
+                {
+                    //temp position and offset
+                    Vector2 tempPos = new Vector2(i, j + offSet);
+                    Vector2 tilePos = new Vector2(i, j);
 
-                //add background
-                GameObject backgroudTile = Instantiate(tilePrefab, tilePos, Quaternion.identity) as GameObject;
-                backgroudTile.transform.parent = this.transform;
-                backgroudTile.name = "(" + i + "-" + j + ")";
+                    //corner coords
+                    Vector2 leftBottomCorner = new Vector2(0, 0); //left bottom
+                    Vector2 rightBottomCorner = new Vector2(width - 1, 0); //left bottom
+                    Vector2 topRightCorner = new Vector2(width - 1, height - 1); //top right
+                    Vector2 topLeftCorner = new Vector2(0, height - 1); //top right
+
+                    if (tilePos == leftBottomCorner || tilePos == topRightCorner || tilePos == rightBottomCorner || tilePos == topLeftCorner)
+                    {
+                        GameObject backTileCorner = Instantiate(tileCornerPrefab, tilePos, Quaternion.identity) as GameObject;
+                        backTileCorner.transform.parent = this.transform;
+                        backTileCorner.name = "(BC:" + i + "-" + j + ")";
+
+                        if (tilePos == topRightCorner)
+                        {
+                            backTileCorner.transform.rotation = Quaternion.Euler(0, 0, 180);
+                        }
+
+                        if (tilePos == rightBottomCorner)
+                        {
+                            backTileCorner.transform.rotation = Quaternion.Euler(0, 0, 90);
+                        }
+
+                        if (tilePos == topLeftCorner)
+                        {
+                            backTileCorner.transform.rotation = Quaternion.Euler(0, 0, -90);
+                        }
+
+                    }
+                    else
+                    {
+                        //add background
+                        GameObject backgroudTile = Instantiate(tilePrefab, tilePos, Quaternion.identity) as GameObject;
+                        backgroudTile.transform.parent = this.transform;
+                        backgroudTile.name = "(B:" + i + "-" + j + ")";
+                    }
+
                
                 //add elements
                 int dotToUse = Random.Range(0, dots.Length);
@@ -299,7 +336,7 @@ public class game_board : MonoBehaviour
 
                 //set properties
                 dot.transform.parent = this.transform;
-                dot.name = "(" + i + "-" + j + ")";
+                dot.name = "(D:" + i + "-" + j + ")";
 
                 
 
@@ -530,13 +567,14 @@ public class game_board : MonoBehaviour
             }
 
             DamageConcrete(column, row);
+
             DamageSlime(column, row);
 
             //goal
             if (goalManagerClass != null)
             {
                 goalManagerClass.CompareGoal(allDots[column, row].tag.ToString());
-                goalManagerClass.UpdatesGoals();    
+                goalManagerClass.UpdateGoals();    
             }
 
 
@@ -552,7 +590,6 @@ public class game_board : MonoBehaviour
 
             Destroy(allDots[column, row]);
 
-            //score
             scoreManagerClass.IncreaseScore(baseValue * streakValue);
 
             allDots[column,row] = null;
@@ -795,6 +832,8 @@ public class game_board : MonoBehaviour
             CheckToCookBombs();
         }
 
+        //scoreManagerClass.IncreaseScore(1);
+
         //clear match
         findMatchesClass.currentMatch.Clear();
 
@@ -803,7 +842,7 @@ public class game_board : MonoBehaviour
             {
                 if (allDots[i, j] != null)
                 {
-                    DestroyMatchesAt(i, j);
+                    DestroyMatchesAt(i, j);                    
                 }
             }
         }
@@ -905,7 +944,7 @@ public class game_board : MonoBehaviour
 
         while (MatchesOnBoard())
         {
-            streakValue ++; //for score
+            streakValue++; //for score            
             DestroyMatches();
             yield break;          
         }
@@ -929,6 +968,8 @@ public class game_board : MonoBehaviour
         makeSlime = true;
 
         streakValue = 1;
+
+        //Debug.Log("Refill");
     }
 
     private void SwitchPieces (int column, int row, Vector2 direction)

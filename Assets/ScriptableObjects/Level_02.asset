@@ -13,29 +13,55 @@ MonoBehaviour:
   m_Name: Level_02
   m_EditorClassIdentifier: 
   width: 6
-  height: 6
+  height: 8
   boardLayout:
+  - x: 1
+    y: 0
+    tileKind: 3
+  - x: 2
+    y: 0
+    tileKind: 3
   - x: 3
-    y: 3
-    tileKind: 2
+    y: 0
+    tileKind: 3
   - x: 4
-    y: 4
+    y: 0
+    tileKind: 3
+  - x: 0
+    y: 1
+    tileKind: 3
+  - x: 1
+    y: 1
+    tileKind: 3
+  - x: 2
+    y: 1
+    tileKind: 3
+  - x: 3
+    y: 1
+    tileKind: 3
+  - x: 4
+    y: 1
+    tileKind: 3
+  - x: 5
+    y: 1
+    tileKind: 3
+  - x: 0
+    y: 2
+    tileKind: 3
+  - x: 1
+    y: 2
     tileKind: 3
   dots:
   - {fileID: 6998997659268194242, guid: 6b865f15982fe624f9a1c45366647115, type: 3}
   - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
   - {fileID: 4480997535196168054, guid: d5ca9b3f6961fa040b6373c035b19b90, type: 3}
   - {fileID: 3208557242404312580, guid: 9042c7df9b5a7124bbea3b9e51471a95, type: 3}
-  scoreGoals: 0600000008000000
+  scoreGoals: 3c0000005a00000078000000
   egRequrimentsLVL:
     gameType: 0
-    counterValue: 20
+    counterValue: 30
   levelGoals:
-  - numberGoalsNeeded: 6
+  - numberGoalsNeeded: 30
     numberCollectedGoals: 0
-    goalSprite: {fileID: 21300000, guid: 44f781220bcf36e4b8124c73994aa374, type: 3}
-    matchValue: element_01
-  - numberGoalsNeeded: 8
-    numberCollectedGoals: 0
-    goalSprite: {fileID: 21300000, guid: 03d352bbf6a39254da53477ffd1f7462, type: 3}
-    matchValue: element_02
+    goalSprite: {fileID: 21300000, guid: f5d7abee0f1daa24c8c8ee29a82b41dc, type: 3}
+    matchValue: concrete

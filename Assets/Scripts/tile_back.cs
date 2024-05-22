@@ -22,7 +22,7 @@ public class tile_back : MonoBehaviour
             if(goalManagerClass != null)
             {
                 goalManagerClass.CompareGoal(this.gameObject.tag);
-                goalManagerClass.UpdatesGoals();
+                goalManagerClass.UpdateGoals();
             }
 
             Destroy(this.gameObject);

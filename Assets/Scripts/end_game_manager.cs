@@ -27,7 +27,7 @@ public class end_game_manager : MonoBehaviour
     public GameObject tryPanel;
 
     //UI
-    public GameObject movesLabel;
+    //public GameObject movesLabel;
     public TMP_Text counter;
     public int curCounterVal;
     
@@ -65,7 +65,7 @@ public class end_game_manager : MonoBehaviour
 
         if(egRequrimentsClass.gameType == GameType.Moves)
         {
-            movesLabel.SetActive(true);
+            //movesLabel.SetActive(true);
         }
 
         counter.text = "" + curCounterVal;

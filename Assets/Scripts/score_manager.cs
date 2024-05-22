@@ -14,7 +14,14 @@ public class score_manager : MonoBehaviour
     public int score;
 
     public Slider scoreBar;
+
+
+    public Image[] levelStars;
+    public Sprite[] levelStarsSpite;
+
+    private int scoreBarLenght;
     private int numberStars;
+    
 
     //class
     private game_data gameDataClass;
@@ -26,7 +33,10 @@ public class score_manager : MonoBehaviour
         gameBoardClass = GameObject.FindWithTag("GameBoard").GetComponent<game_board>();
         gameDataClass = GameObject.FindWithTag("GameData").GetComponent<game_data>();
 
-        //gameDataClass.Load();
+        if (gameBoardClass != null)
+        {
+            GetScoreData();
+        }        
 
         UpdateBar();
 
@@ -35,6 +45,23 @@ public class score_manager : MonoBehaviour
             gameDataClass.Load();
         }
 
+        for (int i = 0; i < levelStars.Length; i++)
+        {
+            levelStars[i].sprite = levelStarsSpite[1];
+            
+        }
+    }
+
+    private void GetScoreData()
+    {
+        int scoreGoalsLength = gameBoardClass.scoreGoals.Length;
+
+        scoreBarLenght = 0;
+
+        for (int i = 0; i < scoreGoalsLength; i++)
+        {
+            scoreBarLenght = scoreBarLenght + gameBoardClass.scoreGoals[i];
+        }
     }
 
     // Update is called once per frame
@@ -46,23 +73,29 @@ public class score_manager : MonoBehaviour
 
     public void IncreaseScore(int amountToIncrease)
     {
-        score += amountToIncrease;
+        score += amountToIncrease;        
 
         for (int i = 0; i < gameBoardClass.scoreGoals.Length; i++)
         {
-            if (score > gameBoardClass.scoreGoals[i] && numberStars < i + 1)
+            //Debug.Log("Score Goals " +i+": "+ gameBoardClass.scoreGoals[i]);
+
+            if (score >= gameBoardClass.scoreGoals[i] && numberStars < i + 1)
             {
                 numberStars++;
             }
         }
 
-        //DebugText("ReadFromsaveData:" + gameDataClass.saveData.isActive.Length);
+        //turn on stars
+        for (int i = 0; i < numberStars; i++)
+        {
+            levelStars[i].sprite = levelStarsSpite[0];
+        }
 
         if (gameDataClass != null)
         {
             int hiScore = gameDataClass.saveData.highScore[gameBoardClass.level];
 
-            DebugText("Score:" + hiScore + "-" + score);
+            //DebugText("Score:" + hiScore + "-" + score);
 
             if (score > hiScore)
             {
@@ -80,6 +113,8 @@ public class score_manager : MonoBehaviour
          }
 
         UpdateBar();
+
+        DebugText(""+score);
 
     }
 
@@ -100,13 +135,14 @@ public class score_manager : MonoBehaviour
         if (gameBoardClass != null && scoreBar != null)
         {
             int scoreGoalsLength = gameBoardClass.scoreGoals.Length;
-            scoreBar.value = (float)score / (float)gameBoardClass.scoreGoals[scoreGoalsLength - 1];
+
+            scoreBar.value = (float)score / (float)gameBoardClass.scoreGoals[scoreGoalsLength - 1];                        
         }
     }
 
     private void DebugText(string text)
     {
-        debugText.text = debugText.text + "/_/" + text;
+        debugText.text = debugText.text + ", " + text;
     }
 
 }
