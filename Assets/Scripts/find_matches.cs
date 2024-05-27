@@ -2,11 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using TMPro;
+using UnityEditor;
 
 public class find_matches : MonoBehaviour
 {
 
     private game_board gameBoardClass;
+    public TMP_Text debugText;
 
     public List<GameObject> currentMatch = new List<GameObject>();
 
@@ -16,6 +19,7 @@ public class find_matches : MonoBehaviour
         gameBoardClass = GameObject.FindWithTag("GameBoard").GetComponent<game_board>();
 
     }
+
 
     public void FindAllMatches()
     {
@@ -46,6 +50,7 @@ public class find_matches : MonoBehaviour
         return currentDots;
     }
 
+    //row column bomb part 
     private List<GameObject> IsRowBomb(dot dot01, dot dot02, dot dot03)
     {
         List<GameObject> currentDots = new List<GameObject>();
@@ -67,7 +72,7 @@ public class find_matches : MonoBehaviour
             currentMatch.Union(GetRowPieces(dot03.row));
             gameBoardClass.BombRow(dot03.row);
         }
-
+          
         return currentDots;
     }
 
@@ -133,7 +138,7 @@ public class find_matches : MonoBehaviour
                     //horizontal
                     if (i > 0 && i < gameBoardClass.width - 1)
                     {
-                        GameObject leftDot = gameBoardClass.allDots[i-1, j];                        
+                        GameObject leftDot = gameBoardClass.allDots[i - 1, j];                        
                         GameObject rightDot = gameBoardClass.allDots[i + 1, j];
 
                         if (leftDot != null && rightDot != null)
@@ -195,6 +200,19 @@ public class find_matches : MonoBehaviour
                 }
             }
         }
+
+        if (currentMatch.Count > 0)
+        {
+            //Debug.Log("FM MC: " + currentMatch.Count);
+
+            for (int i = 0; i< currentMatch.Count; i++)
+            {
+                //Debug.Log("curmatch: " + currentMatch[i]);
+            }
+
+            //Debug.Log("___");
+        }
+        
     }
 
 
@@ -261,6 +279,7 @@ public class find_matches : MonoBehaviour
                 }
 
                 dots.Add(gameBoardClass.allDots[column,i]);
+
                 localDot.isMatched = true;
             }
         } 
@@ -294,7 +313,7 @@ public class find_matches : MonoBehaviour
     }
 
 
-    public void CheckBombs(MatchType matchType)
+    public void ColumnRowBombsCheck(MatchType matchType)
     {
         //move or not move?
         if (gameBoardClass.currentDot != null)
@@ -304,7 +323,7 @@ public class find_matches : MonoBehaviour
                 //unmatch
                 gameBoardClass.currentDot.isMatched = false;
 
-                float angle1=0;
+                float angle1 = 0;
 
                 angle1 = gameBoardClass.currentDot.swipeAngle;
       
@@ -312,12 +331,10 @@ public class find_matches : MonoBehaviour
                 if ((angle1 > -45 && angle1 <= 45) || (angle1 < -135 || angle1 >= 135))
                 {
                     gameBoardClass.currentDot.CookRowBomb();
-                    //Debug.Log("Row bomb!");
                 }
                 else
                 {
                     gameBoardClass.currentDot.CookColumnBomb();
-                    //Debug.Log("Column bomb!");
                 }      
 
 
@@ -346,6 +363,12 @@ public class find_matches : MonoBehaviour
                 }
             }
         }
+    }
+
+
+    private void DebugText(string text)
+    {
+        debugText.text = debugText.text + ", " + text;
     }
 
 }

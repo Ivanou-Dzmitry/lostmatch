@@ -1,9 +1,8 @@
-using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
-
+using UnityEngine.UIElements;
 
 public enum GameState
 {
@@ -19,7 +18,7 @@ public enum TileKind
     Breakable,
     Blank,
     Lock,
-    Concrete,
+    Blocker01,
     Slime,
     Normal
 }
@@ -60,25 +59,33 @@ public class game_board : MonoBehaviour
 
     public GameObject breakableTilePrefab; 
     public GameObject lockTilePrefab; //lock object
-    public GameObject concreteTilePrefab; //lock object
+    public GameObject blocker01Prefab; //lock object
     public GameObject slimeTilePrefab; //lock object
 
     public GameObject[] dots;
     public GameObject[,] allDots;
 
+    //for corner background
+    List<Vector2> cornerCoords = new List<Vector2>();
+    List<Vector3> cornerRotation = new List<Vector3>();
+
     public GameObject destroyEffect;
     
     [Header("Layout")]
     public TileType[] boardLayout;
+    
     //for blank
     private bool[,] blankCells;
+    
     //for break
     private tile_back[,] breakableCells;
     private tile_back[,] slimeCells;
+    
     //for lock
     public tile_back[,] lockCells;
-    //for concrete
-    public tile_back[,] concreteCells;
+    
+    //for blocker_01
+    public tile_back[,] blocker01Cells;
 
 
 
@@ -113,7 +120,6 @@ public class game_board : MonoBehaviour
         if(PlayerPrefs.HasKey("Current_Level"))
         {
             level = PlayerPrefs.GetInt("Current_Level");
-            //Debug.Log("level: " + level);
         }
 
         if(worldClass != null)
@@ -128,8 +134,6 @@ public class game_board : MonoBehaviour
                     dots = worldClass.levels[level].dots;
 
                     scoreGoals = worldClass.levels[level].scoreGoals;
-
-                    //Debug.Log("scoreGoals: " + scoreGoals[0]);
 
                     boardLayout = worldClass.levels[level].boardLayout;
                 }
@@ -152,7 +156,7 @@ public class game_board : MonoBehaviour
         blankCells = new bool[width, height];
         breakableCells = new tile_back[width, height];
         lockCells = new tile_back[width, height];
-        concreteCells = new tile_back[width, height];
+        blocker01Cells = new tile_back[width, height];
         slimeCells = new tile_back[width, height];
 
         allDots = new GameObject[width, height];
@@ -213,22 +217,23 @@ public class game_board : MonoBehaviour
         }
     }
 
-    private void GenConcreteTiles()
+    //bubble gum
+    private void GenBlock01Tiles()
     {
         for (int i = 0; i < boardLayout.Length; i++)
         {
-            if (boardLayout[i].tileKind == TileKind.Concrete)
-            {
+            if (boardLayout[i].tileKind == TileKind.Blocker01)
+            {                
                 Vector2 tempPos = new Vector2(boardLayout[i].x, boardLayout[i].y);
 
-                GameObject tile = Instantiate(concreteTilePrefab, tempPos, Quaternion.identity);
+                GameObject tile = Instantiate(blocker01Prefab, tempPos, Quaternion.identity);
 
-                concreteCells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
+                blocker01Cells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
 
+                //add back tile
                 Vector2 tilePosition = new Vector2(boardLayout[i].x, boardLayout[i].y);
                 GameObject boardTile1 = Instantiate(tilePrefab, tilePosition, Quaternion.identity) as GameObject;
                 boardTile1.transform.parent = this.transform;
-
             }
         }
     }
@@ -245,15 +250,15 @@ public class game_board : MonoBehaviour
 
                 slimeCells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
 
+                //add back tile
                 Vector2 tilePosition = new Vector2(boardLayout[i].x, boardLayout[i].y);
                 GameObject boardTile1 = Instantiate(tilePrefab, tilePosition, Quaternion.identity) as GameObject;
                 boardTile1.transform.parent = this.transform;
-
             }
         }
     }
 
-
+    // setub board
     private void SetUp()
     {
         GenBlankCells();
@@ -262,66 +267,31 @@ public class game_board : MonoBehaviour
 
         GenLockTiles();
 
-        GenConcreteTiles();
+        GenBlock01Tiles();
 
         GenSlimeTiles();
+
+        int counter = 0;
 
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
-                if (!blankCells[i, j] && !concreteCells[i, j] && !slimeCells[i, j])
+                if (!blankCells[i, j] && !blocker01Cells[i, j] && !slimeCells[i, j])
                 {
-                    //temp position and offset
-                    Vector2 tempPos = new Vector2(i, j + offSet);
-                    Vector2 tilePos = new Vector2(i, j);
-
-                    //corner coords
-                    Vector2 leftBottomCorner = new Vector2(0, 0); //left bottom
-                    Vector2 rightBottomCorner = new Vector2(width - 1, 0); //left bottom
-                    Vector2 topRightCorner = new Vector2(width - 1, height - 1); //top right
-                    Vector2 topLeftCorner = new Vector2(0, height - 1); //top right
-
-                    if (tilePos == leftBottomCorner || tilePos == topRightCorner || tilePos == rightBottomCorner || tilePos == topLeftCorner)
-                    {
-                        GameObject backTileCorner = Instantiate(tileCornerPrefab, tilePos, Quaternion.identity) as GameObject;
-                        backTileCorner.transform.parent = this.transform;
-                        backTileCorner.name = "(BC:" + i + "-" + j + ")";
-
-                        if (tilePos == topRightCorner)
-                        {
-                            backTileCorner.transform.rotation = Quaternion.Euler(0, 0, 180);
-                        }
-
-                        if (tilePos == rightBottomCorner)
-                        {
-                            backTileCorner.transform.rotation = Quaternion.Euler(0, 0, 90);
-                        }
-
-                        if (tilePos == topLeftCorner)
-                        {
-                            backTileCorner.transform.rotation = Quaternion.Euler(0, 0, -90);
-                        }
-
-                    }
-                    else
-                    {
-                        //add background
-                        GameObject backgroudTile = Instantiate(tilePrefab, tilePos, Quaternion.identity) as GameObject;
-                        backgroudTile.transform.parent = this.transform;
-                        backgroudTile.name = "(B:" + i + "-" + j + ")";
-                    }
-
-               
+                //temp position and offset
+                Vector2 tempPos = new Vector2(i, j + offSet);
+                Vector2 tilePos = new Vector2(i, j);                   
+                                   
                 //add elements
-                int dotToUse = Random.Range(0, dots.Length);
+                int dotToUse = UnityEngine.Random.Range(0, dots.Length);
 
                 int maxItertion = 0;
 
                 //board without match
                 while(MatchesAt(i, j, dots[dotToUse]) && maxItertion < 100)
                 {
-                    dotToUse = Random.Range(0, dots.Length);
+                    dotToUse = UnityEngine.Random.Range(0, dots.Length);
                     maxItertion++;
                 }
 
@@ -336,16 +306,141 @@ public class game_board : MonoBehaviour
 
                 //set properties
                 dot.transform.parent = this.transform;
-                dot.name = "(D:" + i + "-" + j + ")";
 
-                
+                counter++;
 
+                dot.name = dot.tag + "_" + counter;
+              
                 //add elements to array
-                allDots[i,j] = dot;
+                allDots[i,j] = dot;                
+                }
+            }
+        }
+
+        int columnsAllDots = allDots.GetLength(0);
+        int rowsAllDots = allDots.GetLength(1);
+
+        //left bottom
+        for (int i = 0; i < columnsAllDots; i++)
+        {
+            for (int j = 0; j < rowsAllDots; j++)
+            {
+                if (allDots[i, j] != null)
+                {
+                    //add corner position
+                    Vector2 tempCorner = new Vector2(allDots[i, j].transform.position.x, (allDots[i, j].transform.position.y - offSet));
+                    cornerCoords.Add(tempCorner);
+
+                    //add corenr rotation
+                    Vector3 tempAngle = new Vector3(0, 0, 0);
+                    cornerRotation.Add(tempAngle);
+                    break;
+                }
+            }
+
+            if (allDots[i, 0] != null)
+                break;
+        }
+
+        //left top
+        for (int i = 0; i < columnsAllDots; i++)
+        {
+            for (int j = rowsAllDots - 1; j >= 0; j--)
+            {
+                if (allDots[i, j] != null)
+                {
+                    Vector2 tempCorner = new Vector2(allDots[i, j].transform.position.x, (allDots[i, j].transform.position.y - offSet));
+                    cornerCoords.Add(tempCorner);
+
+                    Vector3 tempAngle = new Vector3(0, 0, -90);
+                    cornerRotation.Add(tempAngle);
+                    break;
+                }
+            }
+
+            if (allDots[i, rowsAllDots-1] != null)
+                break;
+        }
+
+
+        //bottom right
+        for (int i = columnsAllDots - 1; i >= 0; i--)
+        {
+            for (int j = 0; j < rowsAllDots; j++)
+            {
+                if (allDots[i, j] != null)
+                {
+                    Vector2 tempCorner = new Vector2(allDots[i, j].transform.position.x, (allDots[i, j].transform.position.y - offSet));
+                    cornerCoords.Add(tempCorner);
+
+                    Vector3 tempAngle = new Vector3(0, 0, 90);
+                    cornerRotation.Add(tempAngle);
+                    break;
+                }
+            }
+
+            if (allDots[i, 0] != null)
+                break;
+        }
+
+
+        //top right
+        for (int i = columnsAllDots - 1; i >= 0; i--)
+        {
+            for (int j = rowsAllDots - 1; j >= 0; j--)
+            {
+                if (allDots[i, j] != null)
+                {
+                    Vector2 tempCorner = new Vector2(allDots[i, j].transform.position.x, (allDots[i, j].transform.position.y - offSet));
+                    cornerCoords.Add(tempCorner);
+
+                    Vector3 tempAngle = new Vector3(0, 0, 180);
+                    cornerRotation.Add(tempAngle);
+                    break;
+                }
+            }
+
+            if (allDots[i, rowsAllDots - 1] != null)
+                break;
+        }
+
+        counter = 0;
+
+        //fill back corners
+        for (int i = 0; i < cornerCoords.Count; i++)
+        {
+            GameObject backTileCorner = Instantiate(tileCornerPrefab, cornerCoords[i], Quaternion.Euler(cornerRotation[i])) as GameObject;
+            backTileCorner.transform.parent = this.transform;
+            counter++;
+            backTileCorner.name = "" + counter + "_BackCorner" + cornerCoords[i].x + "-" + cornerCoords[i].y;
+        }
+
+        counter = 0;
+
+        for (int i = 0; i < columnsAllDots; i++)
+        {
+            for (int j = 0; j < rowsAllDots; j++)
+            {
+                if (!blankCells[i, j] && !blocker01Cells[i, j] && !slimeCells[i, j])
+                {
+
+                    Vector2 tilePos = new Vector2(i, j);
+
+                    //skip corners
+                    if (!cornerCoords.Contains(tilePos))
+                    {
+                        //add background                        
+                        GameObject backgroudTile = Instantiate(tilePrefab, tilePos, Quaternion.identity) as GameObject;
+                        backgroudTile.transform.parent = this.transform;
+                        counter++;
+                        backgroudTile.name = "" + counter + "_Back" + i + "-" + j;
+                    }
 
                 }
             }
         }
+        
+
     }
 
     private bool MatchesAt(int column, int row, GameObject element)
@@ -360,6 +455,7 @@ public class game_board : MonoBehaviour
                     return true;
                 }
             }
+
             //for blank
             if (allDots[column, row - 1] != null && allDots[column, row - 2] != null)
             {
@@ -399,6 +495,8 @@ public class game_board : MonoBehaviour
         //copy of cur match
         List<GameObject> matchCopy = findMatchesClass.currentMatch as List<GameObject>;
 
+        //Debug.Log("ColumnOrRow - matchCopy: " + matchCopy.Count);
+
         matchTypeClass.type = 0;
         matchTypeClass.color = "";
 
@@ -408,8 +506,10 @@ public class game_board : MonoBehaviour
             //sotore this dot
             dot thisDot = matchCopy[i].GetComponent<dot>();
 
+            //get color
             string color = matchCopy[i].tag; //for class
 
+            //get column
             int column = thisDot.column;
             int row = thisDot.row;
 
@@ -438,12 +538,14 @@ public class game_board : MonoBehaviour
                 }
             }
 
+            //Debug.Log("columnMatch:" + columnMatch + "/ rowMatch: " + rowMatch);
+
             if (columnMatch == matchForRowColBomb || rowMatch == matchForRowColBomb) //column bomb
             {
                 matchTypeClass.type = 1;
                 matchTypeClass.color = color;
                 return matchTypeClass; 
-            } else if (columnMatch == matchForWrapBomb || rowMatch == matchForWrapBomb) // wrap
+            } else if (columnMatch == matchForWrapBomb && rowMatch == matchForWrapBomb) // wrap
             {
                 matchTypeClass.type = 2;
                 matchTypeClass.color = color;
@@ -458,32 +560,8 @@ public class game_board : MonoBehaviour
 
         matchTypeClass.type = 0;
         matchTypeClass.color = "";
-        return matchTypeClass;
-        /*        int horNum = 0;
-        int vertNum = 0;
 
-        dot firstPiese = findMatchesClass.currentMatch[0].GetComponent<dot>();
-        
-        if (firstPiese != null)
-        {
-
-            foreach (GameObject currenPiece in findMatchesClass.currentMatch)
-            {
-                dot dot = currenPiece.GetComponent<dot>();
-
-                if (dot.row == firstPiese.row)
-                {
-                    horNum++;
-                }
-
-                if (dot.column == firstPiese.column)
-                {
-                    vertNum++;
-                }
-            }
-        }
-
-        return (vertNum == 5 || horNum == 5);*/
+        return matchTypeClass;        
     }
 
 
@@ -535,7 +613,7 @@ public class game_board : MonoBehaviour
                 }
             } else if (typeOfMatch.type == 3)
             {
-                findMatchesClass.CheckBombs(typeOfMatch);
+                findMatchesClass.ColumnRowBombsCheck(typeOfMatch);
             }
         }        
     }
@@ -566,8 +644,10 @@ public class game_board : MonoBehaviour
                 }
             }
 
-            DamageConcrete(column, row);
+            //for blockers
+            DamageBlocker01(column, row);
 
+            //for slime
             DamageSlime(column, row);
 
             //goal
@@ -601,85 +681,93 @@ public class game_board : MonoBehaviour
     {
         for (int i = 0; i < width; i++)
         {
-            if (concreteCells[i, row])
-            {
-                concreteCells[i, row].TakeDamage(1);
+           Debug.Log("row: " + row);
 
-                if (concreteCells[i, row].hitPoints <= 0)
+            if (blocker01Cells[i, row])
+            {
+                blocker01Cells[i, row].TakeDamage(1);
+
+                if (blocker01Cells[i, row].hitPoints <= 0)
                 {
-                    concreteCells[i, row] = null;
+                    blocker01Cells[i, row] = null;
                 }
             }
         }
+
+        //Debug.Log("Bomb Row Created!");
     }
 
     public void BombColumn(int column)
     {
+        Debug.Log("column: " + column);
+
         for (int i = 0; i < width; i++)
         {
-            if (concreteCells[column, i])
+            if (blocker01Cells[column, i])
             {
-                concreteCells[column, i].TakeDamage(1);
+                blocker01Cells[column, i].TakeDamage(1);
 
-                if (concreteCells[column, i].hitPoints <= 0)
+                if (blocker01Cells[column, i].hitPoints <= 0)
                 {
-                    concreteCells[column, i] = null;
+                    blocker01Cells[column, i] = null;
                 }
             }
         }
+
+        //Debug.Log("Bomb Column Created!");
     }
 
-    private void DamageConcrete(int column, int row)
+    private void DamageBlocker01(int column, int row)
     {
         if(column > 0)
         {
-            if (concreteCells[column -1, row])
+            if (blocker01Cells[column -1, row])
             {
-                concreteCells[column-1, row].TakeDamage(1);
+                blocker01Cells[column-1, row].TakeDamage(1);
 
-                if (concreteCells[column-1, row].hitPoints <= 0)
+                if (blocker01Cells[column-1, row].hitPoints <= 0)
                 {
-                    concreteCells[column-1, row] = null;
+                    blocker01Cells[column-1, row] = null;
                 }
             }
         }
 
         if (column <  width -1 )
         {            
-            if (concreteCells[column + 1, row])
+            if (blocker01Cells[column + 1, row])
             {
-                concreteCells[column + 1, row].TakeDamage(1);
+                blocker01Cells[column + 1, row].TakeDamage(1);
 
-                if (concreteCells[column + 1, row].hitPoints <= 0)
+                if (blocker01Cells[column + 1, row].hitPoints <= 0)
                 {
-                    concreteCells[column + 1, row] = null;
+                    blocker01Cells[column + 1, row] = null;
                 }
             }
         }
 
         if (row > 0)
         {
-            if (concreteCells[column, row - 1])
+            if (blocker01Cells[column, row - 1])
             {
-                concreteCells[column, row-1].TakeDamage(1);
+                blocker01Cells[column, row-1].TakeDamage(1);
 
-                if (concreteCells[column, row - 1].hitPoints <= 0)
+                if (blocker01Cells[column, row - 1].hitPoints <= 0)
                 {
-                    concreteCells[column, row - 1] = null;
+                    blocker01Cells[column, row - 1] = null;
                 }
             }
         }
 
         if (row < height -1)
         {
-            if (concreteCells[column, row + 1])
+            if (blocker01Cells[column, row + 1])
             {
 
-                concreteCells[column, row+1].TakeDamage(1);
+                blocker01Cells[column, row+1].TakeDamage(1);
 
-                if (concreteCells[column, row + 1].hitPoints <= 0)
+                if (blocker01Cells[column, row + 1].hitPoints <= 0)
                 {
-                    concreteCells[column, row + 1] = null;
+                    blocker01Cells[column, row + 1] = null;
                 }
             }
         }
@@ -800,8 +888,8 @@ public class game_board : MonoBehaviour
 
         while (!slime && loops < 200)
         {
-            int newX = Random.Range(0, width);  
-            int newY = Random.Range(0, height);
+            int newX = UnityEngine.Random.Range(0, width);  
+            int newY = UnityEngine.Random.Range(0, height);
 
             if (slimeCells[newX, newY])
             {
@@ -825,14 +913,12 @@ public class game_board : MonoBehaviour
     }
 
     public void DestroyMatches()
-    {
+    {       
         //match count
         if (findMatchesClass.currentMatch.Count >= minMatchForBomb)
         {
             CheckToCookBombs();
         }
-
-        //scoreManagerClass.IncreaseScore(1);
 
         //clear match
         findMatchesClass.currentMatch.Clear();
@@ -856,7 +942,7 @@ public class game_board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (allDots[i, j] == null && !blankCells[i, j] && !concreteCells[i, j] && !slimeCells[i, j]) //add skip to fill cells
+                if (allDots[i, j] == null && !blankCells[i, j] && !blocker01Cells[i, j] && !slimeCells[i, j]) //add skip to fill cells
                 {
 
                     for(int k = j+1; k < height; k++)
@@ -878,22 +964,24 @@ public class game_board : MonoBehaviour
 
     private void RefillBoard()
     {
+        int counter = 0;
+
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
-                if (allDots[i, j] == null && !blankCells[i,j] && !concreteCells[i, j] && !slimeCells[i, j]) //not refill here
+                if (allDots[i, j] == null && !blankCells[i,j] && !blocker01Cells[i, j] && !slimeCells[i, j]) //not refill here
                 {
                     Vector2 tempPosition = new Vector2(i, j + offSet);
 
-                    int dotToUse = Random.Range(0, dots.Length);
+                    int dotToUse = UnityEngine.Random.Range(0, dots.Length);
 
                     int maxIter = 0;
                     
                     while (MatchesAt(i, j, dots[dotToUse]) && maxIter<100)
                     {
                         maxIter++;
-                        dotToUse = Random.Range(0, dots.Length);
+                        dotToUse = UnityEngine.Random.Range(0, dots.Length);
                     }
                     
                     maxIter = 0;
@@ -904,6 +992,14 @@ public class game_board : MonoBehaviour
                     //for offset
                     element.GetComponent<dot>().row = j;
                     element.GetComponent<dot>().column = i;
+
+                    counter++;
+
+                    //for naming
+                    DateTime now = DateTime.Now;
+                    string currentTime = now.ToString("mmss");
+
+                    element.name = element.tag + "_" + currentTime + "_" + counter;
                 }
 
             }
@@ -923,6 +1019,7 @@ public class game_board : MonoBehaviour
                 {
                     if(allDots[i, j].GetComponent<dot>().isMatched)
                     {
+                        //Debug.Log("MatchesOnBoard!");
                         return true;
                     }
                 }
@@ -1091,16 +1188,16 @@ public class game_board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (!blankCells[i, j] && !concreteCells[i, j] && !slimeCells[i, j]) //list of not
+                if (!blankCells[i, j] && !blocker01Cells[i, j] && !slimeCells[i, j]) //list of not
                 {
-                    int cellToUse = Random.Range(0, newBoard.Count);
+                    int cellToUse = UnityEngine.Random.Range(0, newBoard.Count);
 
                     int maxItertion = 0;
 
                     //board without match
                     while (MatchesAt(i, j, newBoard[cellToUse]) && maxItertion < 100)
                     {
-                        cellToUse = Random.Range(0, newBoard.Count);
+                        cellToUse = UnityEngine.Random.Range(0, newBoard.Count);
                         maxItertion++;
                     }
 

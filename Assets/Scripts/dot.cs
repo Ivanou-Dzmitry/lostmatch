@@ -57,25 +57,6 @@ public class dot : MonoBehaviour
         isRowBomb = false;
         isColorBomb = false;
         isWrapBomb = false;
-
-
-/*        if (usedSprite != null)
-        {
-            Camera cam = Camera.main;
-
-            Vector3 min = usedSprite.bounds.min;
-            Vector3 max = usedSprite.bounds.max;
-
-            Vector3 screenMin = cam.WorldToScreenPoint(min);
-            Vector3 screenMax = cam.WorldToScreenPoint(max);
-
-            Debug.Log(screenMin + "/" + screenMax);
-
-            float screenWidth = screenMax.x - screenMin.x;
-            float screenHeight = screenMax.y - screenMin.y;
-
-            Debug.Log(screenWidth + "/" + screenHeight);
-        }*/
     }
 
 
@@ -172,7 +153,6 @@ public class dot : MonoBehaviour
                 gameBoardClass.DestroyMatches();
             }
 
-            //otherDot = null;
         }
     }
 
@@ -226,6 +206,8 @@ public class dot : MonoBehaviour
     void MovePieceMechanics(Vector2 direction)
     {
         otherDot = gameBoardClass.allDots[column + (int)direction.x, row + (int)direction.y];
+
+        //Debug.Log("direction:" + direction);
 
         previousRow = row;
         previousColumn = column;
@@ -288,6 +270,8 @@ public class dot : MonoBehaviour
             isColumnBomb = true;
             GameObject bombC = Instantiate(columnBomb, transform.position, Quaternion.identity);
             bombC.transform.parent = this.transform;
+            bombC.name = this.name + "_columnb";
+            Debug.Log("Column bomb cooked!");
         }
     }
 
@@ -298,6 +282,8 @@ public class dot : MonoBehaviour
             isRowBomb = true;
             GameObject bombR = Instantiate(rowBomb, transform.position, Quaternion.identity);
             bombR.transform.parent = this.transform;
+            bombR.name = this.name + "_rowb";
+            Debug.Log("Row bomb cooked!");
         }
     }
 
@@ -309,6 +295,8 @@ public class dot : MonoBehaviour
             GameObject color = Instantiate(colorBomb, transform.position, Quaternion.identity);
             color.transform.parent = this.transform;
             this.gameObject.tag = "ColorBomb";
+            color.name = this.name + "_clrb";
+            Debug.Log("Color bomb cooked!");
         }
 
     }
@@ -320,6 +308,8 @@ public class dot : MonoBehaviour
             isWrapBomb = true;
             GameObject wrap = Instantiate(wrapBomb, transform.position, Quaternion.identity);
             wrap.transform.parent = this.transform;
+            wrap.name = this.name + "_wbomb";
+            Debug.Log("Wrap bomb cooked!");
         }
     }
 

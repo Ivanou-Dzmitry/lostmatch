@@ -31,7 +31,23 @@ public class score_manager : MonoBehaviour
     {
         //class
         gameBoardClass = GameObject.FindWithTag("GameBoard").GetComponent<game_board>();
-        gameDataClass = GameObject.FindWithTag("GameData").GetComponent<game_data>();
+
+        GameObject gameDataObject = GameObject.FindWithTag("GameData");
+
+        if (gameDataObject == null)
+        {
+            Debug.LogError("GameData object not found. Make sure there is a GameObject with the tag 'GameData' in the scene.");
+            return;
+        }
+
+        gameDataClass = gameDataObject.GetComponent<game_data>();
+
+        if (gameDataClass == null)
+        {
+            Debug.LogError("game_data component not found on GameData object. Make sure the game_data script is attached to the GameObject with the tag 'GameData'.");
+            return;
+        }
+
 
         if (gameBoardClass != null)
         {
@@ -114,7 +130,7 @@ public class score_manager : MonoBehaviour
 
         UpdateBar();
 
-        DebugText(""+score);
+        //DebugText(""+score);
 
     }
 

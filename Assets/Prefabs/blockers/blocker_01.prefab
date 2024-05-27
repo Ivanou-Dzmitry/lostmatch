@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 8750538071663120739}
   - component: {fileID: 6627121449924976760}
   m_Layer: 0
-  m_Name: concrete_tile
-  m_TagString: Concrete
+  m_Name: blocker_01
+  m_TagString: blocker_01
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

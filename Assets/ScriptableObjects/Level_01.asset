@@ -19,12 +19,12 @@ MonoBehaviour:
   - {fileID: 6998997659268194242, guid: 6b865f15982fe624f9a1c45366647115, type: 3}
   - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
   - {fileID: 4480997535196168054, guid: d5ca9b3f6961fa040b6373c035b19b90, type: 3}
-  scoreGoals: 050000000a0000000f000000
+  scoreGoals: 140000002800000037000000
   egRequrimentsLVL:
     gameType: 0
     counterValue: 15
   levelGoals:
   - numberGoalsNeeded: 15
-    numberCollectedGoals: 3
-    goalSprite: {fileID: 21300000, guid: 44f781220bcf36e4b8124c73994aa374, type: 3}
-    matchValue: element_01
+    numberCollectedGoals: 0
+    goalSprite: {fileID: 21300000, guid: 677f376fcefc29e4dabcb105bbde4c28, type: 3}
+    matchValue: element_03

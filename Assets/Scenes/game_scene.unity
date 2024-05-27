@@ -2582,7 +2582,7 @@ MonoBehaviour:
   tileCornerPrefab: {fileID: 4216381125215540804, guid: eb1be22ef8c09a8419bb1d13944ae367, type: 3}
   breakableTilePrefab: {fileID: 6527145333783162085, guid: 4a65e9f68bbc3444cac79e8768735337, type: 3}
   lockTilePrefab: {fileID: 2549421589202323360, guid: c470caa76780be340a6191492f6afedd, type: 3}
-  concreteTilePrefab: {fileID: 1127882633959337833, guid: 152ce459b2662cb4b9b7a02396b53827, type: 3}
+  blocker01Prefab: {fileID: 1127882633959337833, guid: 152ce459b2662cb4b9b7a02396b53827, type: 3}
   slimeTilePrefab: {fileID: 3215195706076218880, guid: 7002ee50b72dc784ea10adbd307cd16e, type: 3}
   dots:
   - {fileID: 6998997659268194242, guid: 6b865f15982fe624f9a1c45366647115, type: 3}
@@ -3355,6 +3355,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84887f3c966d708499eeb7b9feb89004, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugText: {fileID: 1803871275}
   currentMatch: []
 --- !u!1 &1385347818
 GameObject:
