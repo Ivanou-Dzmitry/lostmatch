@@ -37,12 +37,12 @@ MonoBehaviour:
   - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
   - {fileID: 3208557242404312580, guid: 9042c7df9b5a7124bbea3b9e51471a95, type: 3}
   - {fileID: 6550258979685578383, guid: 15611902203721f4191f3111b0f799b7, type: 3}
-  scoreGoals: 1e0000003c00000050000000
+  scoreGoals: c80000009001000058020000
   egRequrimentsLVL:
     gameType: 0
     counterValue: 22
   levelGoals:
-  - numberGoalsNeeded: 100
+  - numberGoalsNeeded: 6
     numberCollectedGoals: 6
-    goalSprite: {fileID: 21300000, guid: 03d352bbf6a39254da53477ffd1f7462, type: 3}
-    matchValue: element_02
+    goalSprite: {fileID: 21300000, guid: 1cd7535b402ed604f9fee29df6806429, type: 3}
+    matchValue: line_bomb

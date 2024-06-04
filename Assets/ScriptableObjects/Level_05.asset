@@ -12,44 +12,125 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f46b8471a6fc4c248ac13713e6e0889d, type: 3}
   m_Name: Level_05
   m_EditorClassIdentifier: 
-  width: 8
+  width: 7
   height: 8
   boardLayout:
-  - x: 3
-    y: 3
-    tileKind: 0
-  - x: 4
+  - x: 0
+    y: 0
+    tileKind: 1
+  - x: 6
+    y: 0
+    tileKind: 1
+  - x: 0
     y: 4
-    tileKind: 2
+    tileKind: 1
+  - x: 6
+    y: 4
+    tileKind: 1
+  - x: 0
+    y: 5
+    tileKind: 1
+  - x: 0
+    y: 6
+    tileKind: 1
   - x: 6
     y: 6
+    tileKind: 1
+  - x: 0
+    y: 7
+    tileKind: 1
+  - x: 6
+    y: 7
+    tileKind: 1
+  - x: 6
+    y: 5
+    tileKind: 1
+  - x: 1
+    y: 6
+    tileKind: 1
+  - x: 1
+    y: 7
+    tileKind: 1
+  - x: 5
+    y: 6
+    tileKind: 1
+  - x: 5
+    y: 7
+    tileKind: 1
+  - x: 1
+    y: 0
+    tileKind: 3
+  - x: 5
+    y: 0
     tileKind: 3
   - x: 2
+    y: 7
+    tileKind: 3
+  - x: 4
+    y: 7
+    tileKind: 3
+  - x: 1
+    y: 1
+    tileKind: 3
+  - x: 1
     y: 2
-    tileKind: 4
-  - x: 2
+    tileKind: 3
+  - x: 1
     y: 3
-    tileKind: 4
+    tileKind: 3
+  - x: 1
+    y: 4
+    tileKind: 3
+  - x: 1
+    y: 5
+    tileKind: 3
+  - x: 5
+    y: 1
+    tileKind: 3
+  - x: 5
+    y: 2
+    tileKind: 3
+  - x: 5
+    y: 3
+    tileKind: 3
+  - x: 5
+    y: 4
+    tileKind: 3
+  - x: 5
+    y: 5
+    tileKind: 3
+  - x: 2
+    y: 1
+    tileKind: 3
+  - x: 3
+    y: 1
+    tileKind: 3
+  - x: 4
+    y: 1
+    tileKind: 3
+  - x: 2
+    y: 0
+    tileKind: 3
+  - x: 4
+    y: 0
+    tileKind: 3
+  - x: 3
+    y: 2
+    tileKind: 7
   dots:
-  - {fileID: 6998997659268194242, guid: 6b865f15982fe624f9a1c45366647115, type: 3}
   - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
   - {fileID: 4480997535196168054, guid: d5ca9b3f6961fa040b6373c035b19b90, type: 3}
   - {fileID: 3208557242404312580, guid: 9042c7df9b5a7124bbea3b9e51471a95, type: 3}
-  - {fileID: 6550258979685578383, guid: 15611902203721f4191f3111b0f799b7, type: 3}
-  scoreGoals: 06000000080000000a000000
+  scoreGoals: 3c0000005a00000078000000
   egRequrimentsLVL:
     gameType: 0
-    counterValue: 30
+    counterValue: 15
   levelGoals:
-  - numberGoalsNeeded: 6
-    numberCollectedGoals: 12
-    goalSprite: {fileID: 21300000, guid: 44f781220bcf36e4b8124c73994aa374, type: 3}
-    matchValue: element_01
-  - numberGoalsNeeded: 8
-    numberCollectedGoals: 9
-    goalSprite: {fileID: 21300000, guid: 03d352bbf6a39254da53477ffd1f7462, type: 3}
-    matchValue: element_02
-  - numberGoalsNeeded: 10
-    numberCollectedGoals: 13
-    goalSprite: {fileID: 21300000, guid: 677f376fcefc29e4dabcb105bbde4c28, type: 3}
-    matchValue: element_03
+  - numberGoalsNeeded: 24
+    numberCollectedGoals: 0
+    goalSprite: {fileID: 21300000, guid: f5d7abee0f1daa24c8c8ee29a82b41dc, type: 3}
+    matchValue: blocker_01
+  - numberGoalsNeeded: 3
+    numberCollectedGoals: 0
+    goalSprite: {fileID: 21300000, guid: 2c27d25e05d7c954987fcfe692748852, type: 3}
+    matchValue: WrapBomb

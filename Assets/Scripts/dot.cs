@@ -53,17 +53,10 @@ public class dot : MonoBehaviour
         endGameManagerClass = FindObjectOfType<end_game_manager>();
 
         //false bomb
-        isColumnBomb  = false;
+/*        isColumnBomb  = false;
         isRowBomb = false;
         isColorBomb = false;
-        isWrapBomb = false;
-    }
-
-
-    //debug only!
-    private void OnMouseOver()
-    {
-        //Debug
+        isWrapBomb = false;*/
     }
 
 
@@ -271,7 +264,6 @@ public class dot : MonoBehaviour
             GameObject bombC = Instantiate(columnBomb, transform.position, Quaternion.identity);
             bombC.transform.parent = this.transform;
             bombC.name = this.name + "_columnb";
-            Debug.Log("Column bomb cooked!");
         }
     }
 
@@ -281,9 +273,9 @@ public class dot : MonoBehaviour
         {
             isRowBomb = true;
             GameObject bombR = Instantiate(rowBomb, transform.position, Quaternion.identity);
+            //this.tag = "row_bomb";
             bombR.transform.parent = this.transform;
             bombR.name = this.name + "_rowb";
-            Debug.Log("Row bomb cooked!");
         }
     }
 
@@ -296,7 +288,14 @@ public class dot : MonoBehaviour
             color.transform.parent = this.transform;
             this.gameObject.tag = "ColorBomb";
             color.name = this.name + "_clrb";
-            Debug.Log("Color bomb cooked!");
+            
+            //turn off under sprite
+            SpriteRenderer spriteRenderer = this.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {                
+                spriteRenderer.enabled = false; // Turn on the sprite renderer                
+            }
+
         }
 
     }
@@ -308,8 +307,7 @@ public class dot : MonoBehaviour
             isWrapBomb = true;
             GameObject wrap = Instantiate(wrapBomb, transform.position, Quaternion.identity);
             wrap.transform.parent = this.transform;
-            wrap.name = this.name + "_wbomb";
-            Debug.Log("Wrap bomb cooked!");
+            wrap.name = this.name + "_wbomb";            
         }
     }
 

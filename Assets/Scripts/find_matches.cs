@@ -11,91 +11,94 @@ public class find_matches : MonoBehaviour
     private game_board gameBoardClass;
     public TMP_Text debugText;
 
+    [HideInInspector]
     public List<GameObject> currentMatch = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start()
     {
         gameBoardClass = GameObject.FindWithTag("GameBoard").GetComponent<game_board>();
-
     }
 
 
+    //for match
     public void FindAllMatches()
     {
         StartCoroutine(FindAllMatchesCo());
     }
 
 
-    //wrap
+    //list for wrap
     private List<GameObject> IsWrapBomb(dot dot01, dot dot02, dot dot03)
     {
         List<GameObject> currentDots = new List<GameObject>();
 
+
         if (dot01.isWrapBomb)
-        {
-            currentMatch.Union(GetWrapPieces(dot01.column, dot01.row));
+        {            
+            currentMatch.AddRange(GetWrapPieces(dot01.column, dot01.row));
         }
 
         if (dot02.isWrapBomb)
         {
-            currentMatch.Union(GetWrapPieces(dot02.column, dot02.row));
+            currentMatch.AddRange(GetWrapPieces(dot02.column, dot02.row));
         }
 
         if (dot03.isWrapBomb)
         {
-            currentMatch.Union(GetWrapPieces(dot03.column, dot03.row));
+            currentMatch.AddRange(GetWrapPieces(dot03.column, dot03.row));
         }
 
         return currentDots;
     }
 
-    //row column bomb part 
+    //row bomb list
     private List<GameObject> IsRowBomb(dot dot01, dot dot02, dot dot03)
     {
         List<GameObject> currentDots = new List<GameObject>();
 
         if (dot01.isRowBomb)
         {
-            currentMatch.Union(GetRowPieces(dot01.row));
+            currentMatch.AddRange(GetRowPieces(dot01.row));
             gameBoardClass.BombRow(dot01.row);
         }
 
         if (dot02.isRowBomb)
         {
-            currentMatch.Union(GetRowPieces(dot02.row));
+            currentMatch.AddRange(GetRowPieces(dot02.row));
             gameBoardClass.BombRow(dot02.row);
         }
 
         if (dot03.isRowBomb)
         {
-            currentMatch.Union(GetRowPieces(dot03.row));
+            currentMatch.AddRange(GetRowPieces(dot03.row));
             gameBoardClass.BombRow(dot03.row);
         }
           
         return currentDots;
     }
 
-
+    //column bomb list
     private List<GameObject> IsColumnBomb(dot dot01, dot dot02, dot dot03)
     {
         List<GameObject> currentDots = new List<GameObject>();
 
+
         if (dot01.isColumnBomb)
         {
-            currentMatch.Union(GetColumnPieces(dot01.column));
+            currentMatch.AddRange(GetColumnPieces(dot01.column));
             gameBoardClass.BombColumn(dot01.column);
         }
 
         if (dot02.isColumnBomb)
         {
-            currentMatch.Union(GetColumnPieces(dot02.column));
+            currentMatch.AddRange(GetColumnPieces(dot02.column));
             gameBoardClass.BombColumn(dot02.column);
         }
 
         if (dot03.isColumnBomb)
         {
-            currentMatch.Union(GetColumnPieces(dot03.column));
+            currentMatch.AddRange(GetColumnPieces(dot03.column));
             gameBoardClass.BombColumn(dot03.column);
         }
 
@@ -114,11 +117,14 @@ public class find_matches : MonoBehaviour
 
     private void GetNearbyPieces(GameObject dot01, GameObject dot02, GameObject dot03)
     {
-        AddToListMatch(dot01);
-
-        AddToListMatch(dot02);
-
-        AddToListMatch(dot03);
+        if (dot01 != null)        
+            AddToListMatch(dot01);
+        
+        if (dot02 != null)
+            AddToListMatch(dot02);
+        
+        if (dot03 != null)
+            AddToListMatch(dot03);
     }
 
     private IEnumerator FindAllMatchesCo()
@@ -133,36 +139,39 @@ public class find_matches : MonoBehaviour
                 
                 if (currentDot != null)                    
                 {
-                    dot curDotGet = currentDot.GetComponent<dot>(); //optimize
+                    dot curDotGet = currentDot.GetComponent<dot>(); //get first dot
 
                     //horizontal
                     if (i > 0 && i < gameBoardClass.width - 1)
                     {
+                        //get neiborhood
                         GameObject leftDot = gameBoardClass.allDots[i - 1, j];                        
                         GameObject rightDot = gameBoardClass.allDots[i + 1, j];
 
                         if (leftDot != null && rightDot != null)
                         {
-                            dot leftDotGet = leftDot.GetComponent<dot>(); //optimize
-                            dot rightDotGet = rightDot.GetComponent<dot>(); //optimize
+                            //get neiborhood dots
+                            dot leftDotGet = leftDot.GetComponent<dot>(); //get 2nd dot
+                            dot rightDotGet = rightDot.GetComponent<dot>(); //get 3rd dot
                         
                             if (leftDot != null && rightDot != null)
                             {
-                                if (leftDot.tag == currentDot.tag && rightDot.tag == currentDot.tag)
+                                if (leftDot.tag == currentDot.tag && rightDot.tag == currentDot.tag) //compare tags form lr dots
                                 {
+
+
                                     //row bomb
-                                    currentMatch.Union(IsRowBomb(leftDotGet, curDotGet, rightDotGet));
+                                    currentMatch.AddRange(IsRowBomb(leftDotGet, curDotGet, rightDotGet));
 
                                     //column bomb
-                                    currentMatch.Union(IsColumnBomb(leftDotGet, curDotGet, rightDotGet));
+                                    currentMatch.AddRange(IsColumnBomb(leftDotGet, curDotGet, rightDotGet));
 
                                     //wrap bomb
-                                    currentMatch.Union(IsWrapBomb(leftDotGet, curDotGet, rightDotGet));
+                                    currentMatch.AddRange(IsWrapBomb(leftDotGet, curDotGet, rightDotGet));
 
                                     GetNearbyPieces(leftDot, currentDot, rightDot);
                                 }
                             }
-
                         }
                     }
 
@@ -183,16 +192,15 @@ public class find_matches : MonoBehaviour
                                 {
 
                                     //column bobm
-                                    currentMatch.Union(IsColumnBomb(upDotGet, curDotGet, downDotGet));
+                                    currentMatch.AddRange(IsColumnBomb(upDotGet, curDotGet, downDotGet));
 
                                     //row bomb
-                                    currentMatch.Union(IsRowBomb(upDotGet, curDotGet, downDotGet));
+                                    currentMatch.AddRange(IsRowBomb(upDotGet, curDotGet, downDotGet));
 
                                     //wrap bomb
-                                    currentMatch.Union(IsWrapBomb(upDotGet, curDotGet, downDotGet));
+                                    currentMatch.AddRange(IsWrapBomb(upDotGet, curDotGet, downDotGet));
 
                                     GetNearbyPieces(upDot, currentDot, downDot);
-
                                 }
                             }
                         }
@@ -201,17 +209,6 @@ public class find_matches : MonoBehaviour
             }
         }
 
-        if (currentMatch.Count > 0)
-        {
-            //Debug.Log("FM MC: " + currentMatch.Count);
-
-            for (int i = 0; i< currentMatch.Count; i++)
-            {
-                //Debug.Log("curmatch: " + currentMatch[i]);
-            }
-
-            //Debug.Log("___");
-        }
         
     }
 
@@ -282,8 +279,9 @@ public class find_matches : MonoBehaviour
 
                 localDot.isMatched = true;
             }
-        } 
+        }
 
+        
         return dots;
     }
 

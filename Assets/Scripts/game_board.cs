@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -20,7 +21,11 @@ public enum TileKind
     Lock,
     Blocker01,
     Slime,
-    Normal
+    Normal,
+    ColorBomb,
+    WrapBomb,
+    ColumnBomb,
+    RowBomb
 }
 
 [System.Serializable]
@@ -51,7 +56,7 @@ public class game_board : MonoBehaviour
     public int height;
     public int offSet;
 
-    public float refillDelay = .5f;
+    public float refillDelay = .9f;
 
     [Header("Prefabs")]
     public GameObject tilePrefab;
@@ -62,21 +67,31 @@ public class game_board : MonoBehaviour
     public GameObject blocker01Prefab; //lock object
     public GameObject slimeTilePrefab; //lock object
 
+    //bonus
+    public GameObject colorBombPrefab; //lock object
+
     public GameObject[] dots;
     public GameObject[,] allDots;
+    public Vector2[,] allTypeDotsCoord;
+    private bool[,] allNonBlankDots;
+
+    //public Vector2[,] tempDots;
+
 
     //for corner background
     List<Vector2> cornerCoords = new List<Vector2>();
     List<Vector3> cornerRotation = new List<Vector3>();
 
     public GameObject destroyEffect;
-    
+
     [Header("Layout")]
     public TileType[] boardLayout;
     
     //for blank
     private bool[,] blankCells;
-    
+
+
+
     //for break
     private tile_back[,] breakableCells;
     private tile_back[,] slimeCells;
@@ -87,11 +102,13 @@ public class game_board : MonoBehaviour
     //for blocker_01
     public tile_back[,] blocker01Cells;
 
-
+    //bonus
+    private tile_back[,] bonusCells;
 
     [Header("Match Suff")]
     public MatchType matchTypeClass;
     public dot currentDot;
+    public string colrowBombs = "line_bomb";
 
     //classes
     private find_matches findMatchesClass;
@@ -143,6 +160,8 @@ public class game_board : MonoBehaviour
     }
 
 
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -159,7 +178,13 @@ public class game_board : MonoBehaviour
         blocker01Cells = new tile_back[width, height];
         slimeCells = new tile_back[width, height];
 
+        //
+        bonusCells = new tile_back[width, height];
+
         allDots = new GameObject[width, height];
+
+        allTypeDotsCoord = new Vector2[width, height];
+        allNonBlankDots = new bool [width, height];
 
         //setup board
         SetUp();
@@ -172,9 +197,8 @@ public class game_board : MonoBehaviour
         Screen.SetResolution((int)Screen.width, (int)Screen.height, true);
 
         //state
-        currentState = GameState.pause;
+        currentState = GameState.pause;        
     }
-
 
     public void GenBlankCells()
     {
@@ -182,7 +206,7 @@ public class game_board : MonoBehaviour
         {
             if (boardLayout[i].tileKind == TileKind.Blank)
             {
-                blankCells[boardLayout[i].x, boardLayout[i].y] = true;
+                blankCells[boardLayout[i].x, boardLayout[i].y] = true;                
             }    
         }
     }
@@ -198,6 +222,9 @@ public class game_board : MonoBehaviour
                 GameObject tile = Instantiate(breakableTilePrefab, tempPos, Quaternion.identity);
 
                 breakableCells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
+
+                //add to all
+                allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
             }
         }
     }
@@ -213,6 +240,9 @@ public class game_board : MonoBehaviour
                 GameObject tile = Instantiate(lockTilePrefab, tempPos, Quaternion.identity);
 
                 lockCells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
+
+                //add to all
+                allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
             }
         }
     }
@@ -220,26 +250,28 @@ public class game_board : MonoBehaviour
     //bubble gum
     private void GenBlock01Tiles()
     {
+        
+
         for (int i = 0; i < boardLayout.Length; i++)
         {
             if (boardLayout[i].tileKind == TileKind.Blocker01)
-            {                
+            {
                 Vector2 tempPos = new Vector2(boardLayout[i].x, boardLayout[i].y);
 
-                GameObject tile = Instantiate(blocker01Prefab, tempPos, Quaternion.identity);
+                GameObject tileBlocker = Instantiate(blocker01Prefab, tempPos, Quaternion.identity);
+                tileBlocker.name = "blocker_01_" +i+"_"+boardLayout[i].x +"-"+ boardLayout[i].y;
 
-                blocker01Cells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
+                blocker01Cells[boardLayout[i].x, boardLayout[i].y] = tileBlocker.GetComponent<tile_back>();
 
-                //add back tile
-                Vector2 tilePosition = new Vector2(boardLayout[i].x, boardLayout[i].y);
-                GameObject boardTile1 = Instantiate(tilePrefab, tilePosition, Quaternion.identity) as GameObject;
-                boardTile1.transform.parent = this.transform;
+                //add to all
+                allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;                
             }
         }
     }
 
     private void GenSlimeTiles()
     {
+
         for (int i = 0; i < boardLayout.Length; i++)
         {
             if (boardLayout[i].tileKind == TileKind.Slime)
@@ -250,13 +282,180 @@ public class game_board : MonoBehaviour
 
                 slimeCells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
 
-                //add back tile
-                Vector2 tilePosition = new Vector2(boardLayout[i].x, boardLayout[i].y);
-                GameObject boardTile1 = Instantiate(tilePrefab, tilePosition, Quaternion.identity) as GameObject;
-                boardTile1.transform.parent = this.transform;
+                //add to all
+                allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
+
             }
         }
     }
+
+    private void GenBonusCells()
+    {
+        for (int i = 0; i < boardLayout.Length; i++)
+        {
+            if (boardLayout[i].tileKind == TileKind.ColorBomb)
+            {                                     
+                int column = boardLayout[i].x;
+                int row = boardLayout[i].y;
+
+                //get current dot
+                GameObject currentDot = allDots[column, row];
+
+                if (currentDot != null)
+                {
+                    //get dot component
+                    dot curDotGet = currentDot.GetComponent<dot>();
+
+                    if (curDotGet != null)
+                    {
+                        curDotGet.CookColorBomb();                        
+                        curDotGet.isColorBomb = true;                        
+                    }
+                }              
+            }
+
+            if (boardLayout[i].tileKind == TileKind.WrapBomb)
+            {
+                int column = boardLayout[i].x;
+                int row = boardLayout[i].y;
+
+                //get current dot
+                GameObject currentDot = allDots[column, row];
+
+                if (currentDot != null)
+                {
+                    //get dot component
+                    dot curDotGet = currentDot.GetComponent<dot>();
+
+                    if (curDotGet != null)
+                    {
+                        curDotGet.CookWrapBomb();
+                        curDotGet.isWrapBomb = true;
+                    }
+                }
+            }
+
+        }
+    }
+
+
+    private void FindCorners()
+    {
+
+        int columnsAllDots = allTypeDotsCoord.GetLength(0);
+        int rowsAllDots = allTypeDotsCoord.GetLength(1);
+       
+        //left bottom
+        for (int i = 0; i < columnsAllDots; i++)
+        {
+            for (int j = 0; j < rowsAllDots; j++)
+            {                
+                if (allNonBlankDots[i, j])
+                {
+                    //add corner position
+                    float tempX = allTypeDotsCoord[i, j].x;
+                    float tempY = allTypeDotsCoord[i, j].y;
+
+                    Vector2 tempCorner = new Vector2(tempX, tempY);
+
+                    if (!cornerCoords.Contains(tempCorner))
+                        cornerCoords.Add(tempCorner);
+
+                    //add corenr rotation
+                    Vector3 tempAngle = new Vector3(0, 0, 0);
+                    cornerRotation.Add(tempAngle);
+                    break;
+                }
+            }
+
+            if (allNonBlankDots[i, 0])
+                break;
+        }
+
+        //bottom right
+        for (int i = columnsAllDots - 1; i >= 0; i--)
+        {
+            for (int j = 0; j < rowsAllDots; j++)
+            {
+                if (allNonBlankDots[i, j])
+                {
+                    //add corner position
+                    float tempX = allTypeDotsCoord[i, j].x;
+                    float tempY = allTypeDotsCoord[i, j].y;
+
+                    Vector2 tempCorner = new Vector2(tempX, tempY);
+
+                    if (!cornerCoords.Contains(tempCorner))
+                        cornerCoords.Add(tempCorner);
+                    
+                    //add corenr rotation
+                    Vector3 tempAngle = new Vector3(0, 0, 90);
+                    cornerRotation.Add(tempAngle);
+                    break;
+                }
+            }
+
+            if (allNonBlankDots[i, 0])
+                break;
+        }
+
+        //left top
+        for (int i = 0; i < columnsAllDots; i++)
+        {
+            for (int j = rowsAllDots - 1; j >= 0; j--)
+            {
+
+                //add corner position
+                if (allNonBlankDots[i, j])
+                {
+                    //add corner position
+                    float tempX = allTypeDotsCoord[i, j].x;
+                    float tempY = allTypeDotsCoord[i, j].y;
+
+                    Vector2 tempCorner = new Vector2(tempX, tempY);
+
+                    if (!cornerCoords.Contains(tempCorner))
+                        cornerCoords.Add(tempCorner);
+
+                    //add corenr rotation
+                    Vector3 tempAngle = new Vector3(0, 0, -90);
+                    cornerRotation.Add(tempAngle);
+                    break;
+                }
+            }
+
+            if (allNonBlankDots[i, rowsAllDots - 1])
+                break;           
+        }
+
+        //top right
+        for (int i = columnsAllDots - 1; i >= 0; i--)
+        {
+            for (int j = rowsAllDots - 1; j >= 0; j--)
+            {
+                if (allNonBlankDots[i, j])
+                {
+                    //add corner position
+                    float tempX = allTypeDotsCoord[i, j].x;
+                    float tempY = allTypeDotsCoord[i, j].y;
+
+                    Vector2 tempCorner = new Vector2(tempX, tempY);
+
+                    if (!cornerCoords.Contains(tempCorner))
+                        cornerCoords.Add(tempCorner);
+
+                    Vector3 tempAngle = new Vector3(0, 0, 180);
+                    cornerRotation.Add(tempAngle);
+                    break;
+                }
+            }
+
+            if (allNonBlankDots[i, rowsAllDots - 1])
+                break;
+        }
+    }
+
+
 
     // setub board
     private void SetUp()
@@ -271,7 +470,10 @@ public class game_board : MonoBehaviour
 
         GenSlimeTiles();
 
+        
+
         int counter = 0;
+
 
         for (int i = 0; i < width; i++)
         {
@@ -309,7 +511,7 @@ public class game_board : MonoBehaviour
 
                 counter++;
 
-                dot.name = dot.tag + "_" + counter;
+                dot.name = dot.tag + "_" + counter + "_" + i + "-" + j;
               
                 //add elements to array
                 allDots[i,j] = dot;                
@@ -317,94 +519,29 @@ public class game_board : MonoBehaviour
             }
         }
 
-        int columnsAllDots = allDots.GetLength(0);
+        GenBonusCells();
+
+        //add all dots
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                if (blocker01Cells[i, j] || slimeCells[i, j] || allDots[i, j])
+                {
+                    Vector2 tilePos = new Vector2(i, j);
+                    allTypeDotsCoord[i, j] = tilePos;
+                    allNonBlankDots[i, j] = true;
+                }            
+            }
+        }
+
+        
+
+        FindCorners();        
+
+        int columnsAllDots = allDots.GetLength(0);      
         int rowsAllDots = allDots.GetLength(1);
 
-        //left bottom
-        for (int i = 0; i < columnsAllDots; i++)
-        {
-            for (int j = 0; j < rowsAllDots; j++)
-            {
-                if (allDots[i, j] != null)
-                {
-                    //add corner position
-                    Vector2 tempCorner = new Vector2(allDots[i, j].transform.position.x, (allDots[i, j].transform.position.y - offSet));
-                    cornerCoords.Add(tempCorner);
-
-                    //add corenr rotation
-                    Vector3 tempAngle = new Vector3(0, 0, 0);
-                    cornerRotation.Add(tempAngle);
-                    break;
-                }
-            }
-
-            if (allDots[i, 0] != null)
-                break;
-        }
-
-        //left top
-        for (int i = 0; i < columnsAllDots; i++)
-        {
-            for (int j = rowsAllDots - 1; j >= 0; j--)
-            {
-                if (allDots[i, j] != null)
-                {
-                    Vector2 tempCorner = new Vector2(allDots[i, j].transform.position.x, (allDots[i, j].transform.position.y - offSet));
-                    cornerCoords.Add(tempCorner);
-
-                    Vector3 tempAngle = new Vector3(0, 0, -90);
-                    cornerRotation.Add(tempAngle);
-                    break;
-                }
-            }
-
-            if (allDots[i, rowsAllDots-1] != null)
-                break;
-        }
-
-
-        //bottom right
-        for (int i = columnsAllDots - 1; i >= 0; i--)
-        {
-            for (int j = 0; j < rowsAllDots; j++)
-            {
-                if (allDots[i, j] != null)
-                {
-                    Vector2 tempCorner = new Vector2(allDots[i, j].transform.position.x, (allDots[i, j].transform.position.y - offSet));
-                    cornerCoords.Add(tempCorner);
-
-                    Vector3 tempAngle = new Vector3(0, 0, 90);
-                    cornerRotation.Add(tempAngle);
-                    break;
-                }
-            }
-
-            if (allDots[i, 0] != null)
-                break;
-        }
-
-
-        //top right
-        for (int i = columnsAllDots - 1; i >= 0; i--)
-        {
-            for (int j = rowsAllDots - 1; j >= 0; j--)
-            {
-                if (allDots[i, j] != null)
-                {
-                    Vector2 tempCorner = new Vector2(allDots[i, j].transform.position.x, (allDots[i, j].transform.position.y - offSet));
-                    cornerCoords.Add(tempCorner);
-
-                    Vector3 tempAngle = new Vector3(0, 0, 180);
-                    cornerRotation.Add(tempAngle);
-                    break;
-                }
-            }
-
-            if (allDots[i, rowsAllDots - 1] != null)
-                break;
-        }
-
-        counter = 0;
 
         //fill back corners
         for (int i = 0; i < cornerCoords.Count; i++)
@@ -417,28 +554,40 @@ public class game_board : MonoBehaviour
 
         counter = 0;
 
+        //Fill back std tiles
         for (int i = 0; i < columnsAllDots; i++)
         {
             for (int j = 0; j < rowsAllDots; j++)
             {
                 if (!blankCells[i, j] && !blocker01Cells[i, j] && !slimeCells[i, j])
                 {
-
                     Vector2 tilePos = new Vector2(i, j);
 
-                    //skip corners
                     if (!cornerCoords.Contains(tilePos))
                     {
                         //add background                        
                         GameObject backgroudTile = Instantiate(tilePrefab, tilePos, Quaternion.identity) as GameObject;
                         backgroudTile.transform.parent = this.transform;
+
                         counter++;
                         backgroudTile.name = "" + counter + "_Back" + i + "-" + j;
+                    }
+                }
+                else
+                {
+                    Vector2 tilePos = new Vector2(i, j);
+
+                    if (!cornerCoords.Contains(tilePos) && !blankCells[i, j])
+                    {
+                        GameObject backgroudTile = Instantiate(tilePrefab, tilePos, Quaternion.identity) as GameObject;
+                        backgroudTile.transform.parent = this.transform;
                     }
 
                 }
             }
         }
+
+
         
 
     }
@@ -493,9 +642,7 @@ public class game_board : MonoBehaviour
     private MatchType ColumnOrRow()
     {
         //copy of cur match
-        List<GameObject> matchCopy = findMatchesClass.currentMatch as List<GameObject>;
-
-        //Debug.Log("ColumnOrRow - matchCopy: " + matchCopy.Count);
+        List<GameObject> matchCopy = findMatchesClass.currentMatch as List<GameObject>;        
 
         matchTypeClass.type = 0;
         matchTypeClass.color = "";
@@ -527,18 +674,16 @@ public class game_board : MonoBehaviour
                     continue;
                 }
 
-                if(nextDot.column == thisDot.column && nextDot.tag == color)
+                if(nextDot.column == thisDot.column && nextDot.CompareTag(color)) //fix tag
                 {
                     columnMatch++;  
                 }
 
-                if (nextDot.row == thisDot.row && nextDot.tag == color)
+                if (nextDot.row == thisDot.row && nextDot.CompareTag(color)) //fix tag
                 {
                     rowMatch++;
                 }
-            }
-
-            //Debug.Log("columnMatch:" + columnMatch + "/ rowMatch: " + rowMatch);
+            }          
 
             if (columnMatch == matchForRowColBomb || rowMatch == matchForRowColBomb) //column bomb
             {
@@ -620,8 +765,14 @@ public class game_board : MonoBehaviour
 
     private void DestroyMatchesAt(int column, int row)
     {
+        //Debug.Log("" + goalManagerClass.levelGoals[0].matchValue);
+
         if (allDots[column, row].GetComponent<dot>().isMatched)
         {
+
+            GameObject currentDot = allDots[column, row];
+            dot curDotGet = currentDot.GetComponent<dot>();
+
             //breakable tiles
             if (breakableCells[column, row] != null)
             {
@@ -642,7 +793,7 @@ public class game_board : MonoBehaviour
                 {
                     lockCells[column, row] = null;
                 }
-            }
+            }                
 
             //for blockers
             DamageBlocker01(column, row);
@@ -650,10 +801,23 @@ public class game_board : MonoBehaviour
             //for slime
             DamageSlime(column, row);
 
+            
             //goal
             if (goalManagerClass != null)
             {
-                goalManagerClass.CompareGoal(allDots[column, row].tag.ToString());
+                if (curDotGet.isRowBomb || curDotGet.isColumnBomb)
+                {
+                    goalManagerClass.CompareGoal(colrowBombs); //for line bombs
+                }else if (curDotGet.isWrapBomb)
+                {
+                    goalManagerClass.CompareGoal("WrapBomb"); //for Wrap bombs
+                    Debug.Log("Wrap");
+                }
+                else
+                {
+                    goalManagerClass.CompareGoal(allDots[column, row].tag.ToString()); //for usual dots
+                }
+
                 goalManagerClass.UpdateGoals();    
             }
 
@@ -668,7 +832,7 @@ public class game_board : MonoBehaviour
             GameObject particle = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
             Destroy(particle, .6f);
 
-            Destroy(allDots[column, row]);
+            Destroy(allDots[column, row]);           
 
             scoreManagerClass.IncreaseScore(baseValue * streakValue);
 
@@ -679,9 +843,11 @@ public class game_board : MonoBehaviour
     //for bomb for concrete
     public void BombRow(int row)
     {
+        //Debug.Log(blocker01Cells.Length);
+
         for (int i = 0; i < width; i++)
         {
-           Debug.Log("row: " + row);
+           //Debug.Log("row: " + row);
 
             if (blocker01Cells[i, row])
             {
@@ -699,9 +865,8 @@ public class game_board : MonoBehaviour
 
     public void BombColumn(int column)
     {
-        Debug.Log("column: " + column);
-
-        for (int i = 0; i < width; i++)
+        
+        for (int i = 0; i < height; i++)
         {
             if (blocker01Cells[column, i])
             {
@@ -933,6 +1098,8 @@ public class game_board : MonoBehaviour
             }
         }
 
+        findMatchesClass.currentMatch.Clear();
+
         StartCoroutine(DecreaseRowCo());
     }
 
@@ -978,7 +1145,7 @@ public class game_board : MonoBehaviour
 
                     int maxIter = 0;
                     
-                    while (MatchesAt(i, j, dots[dotToUse]) && maxIter<100)
+                    while (MatchesAt(i, j, dots[dotToUse]) && maxIter<200)
                     {
                         maxIter++;
                         dotToUse = UnityEngine.Random.Range(0, dots.Length);

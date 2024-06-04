@@ -2576,7 +2576,7 @@ MonoBehaviour:
   currentState: 1
   width: 6
   height: 9
-  offSet: 9
+  offSet: 10
   refillDelay: 0.5
   tilePrefab: {fileID: 3682901610281065133, guid: 56ade869d902f6f4b951722081ea8ae7, type: 3}
   tileCornerPrefab: {fileID: 4216381125215540804, guid: eb1be22ef8c09a8419bb1d13944ae367, type: 3}
@@ -2584,6 +2584,7 @@ MonoBehaviour:
   lockTilePrefab: {fileID: 2549421589202323360, guid: c470caa76780be340a6191492f6afedd, type: 3}
   blocker01Prefab: {fileID: 1127882633959337833, guid: 152ce459b2662cb4b9b7a02396b53827, type: 3}
   slimeTilePrefab: {fileID: 3215195706076218880, guid: 7002ee50b72dc784ea10adbd307cd16e, type: 3}
+  colorBombPrefab: {fileID: 8035863110815049107, guid: c8e3e660215344e41b14e18c8c543a20, type: 3}
   dots:
   - {fileID: 6998997659268194242, guid: 6b865f15982fe624f9a1c45366647115, type: 3}
   - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
@@ -2614,6 +2615,7 @@ MonoBehaviour:
     type: 0
     color: 
   currentDot: {fileID: 0}
+  colrowBombs: line_bomb
   baseValue: 1
   streakValue: 1
   scoreGoals: 64000000c80000002c010000
