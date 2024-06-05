@@ -2611,6 +2611,10 @@ MonoBehaviour:
   - x: 0
     y: 0
     tileKind: 0
+  preloadBoardLayout:
+  - x: 0
+    y: 0
+    tileKind: 10
   matchTypeClass:
     type: 0
     color: 

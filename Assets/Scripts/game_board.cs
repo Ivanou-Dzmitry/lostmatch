@@ -16,7 +16,7 @@ public enum GameState
 
 public enum TileKind
 {
-    Breakable,
+    Breakable01,
     Blank,
     Lock,
     Blocker01,
@@ -25,7 +25,12 @@ public enum TileKind
     ColorBomb,
     WrapBomb,
     ColumnBomb,
-    RowBomb
+    RowBomb,
+    element_01,
+    element_02,
+    element_03,
+    element_04,
+    element_05
 }
 
 [System.Serializable]
@@ -86,11 +91,10 @@ public class game_board : MonoBehaviour
 
     [Header("Layout")]
     public TileType[] boardLayout;
-    
+    public TileType[] preloadBoardLayout;
+
     //for blank
     private bool[,] blankCells;
-
-
 
     //for break
     private tile_back[,] breakableCells;
@@ -101,6 +105,10 @@ public class game_board : MonoBehaviour
     
     //for blocker_01
     public tile_back[,] blocker01Cells;
+
+    //for preload
+    public tile_back[,] preloadCells;
+    private Dictionary<TileKind, int> tileKindToDotIndex;
 
     //bonus
     private tile_back[,] bonusCells;
@@ -153,10 +161,23 @@ public class game_board : MonoBehaviour
                     scoreGoals = worldClass.levels[level].scoreGoals;
 
                     boardLayout = worldClass.levels[level].boardLayout;
+                    preloadBoardLayout = worldClass.levels[level].preloadBoardLayout;
                 }
 
             }
         }
+
+
+        // Initialize the dictionary
+        tileKindToDotIndex = new Dictionary<TileKind, int>
+        {
+            { TileKind.element_01, 0 },
+            { TileKind.element_02, 1 },
+            { TileKind.element_03, 2 },
+            { TileKind.element_04, 3 },
+            { TileKind.element_05, 4 }
+        };
+
     }
 
 
@@ -177,6 +198,9 @@ public class game_board : MonoBehaviour
         lockCells = new tile_back[width, height];
         blocker01Cells = new tile_back[width, height];
         slimeCells = new tile_back[width, height];
+
+        //for preload
+        preloadCells = new tile_back[width, height];
 
         //
         bonusCells = new tile_back[width, height];
@@ -200,6 +224,39 @@ public class game_board : MonoBehaviour
         currentState = GameState.pause;        
     }
 
+
+    public void GenPreloadLayout()
+    {
+        for (int i = 0; i < preloadBoardLayout.Length; i++)
+        {
+            TileKind kind = preloadBoardLayout[i].tileKind;
+
+            if (tileKindToDotIndex.ContainsKey(kind))
+            {
+                Vector2 tempPos = new Vector2(preloadBoardLayout[i].x, preloadBoardLayout[i].y);
+                int valueX = preloadBoardLayout[i].x;
+                int valueY = preloadBoardLayout[i].y;
+
+                // Delete old dot
+                Destroy(allDots[valueX, valueY].gameObject);
+
+                // Create preload
+                GameObject preloadDot = Instantiate(dots[tileKindToDotIndex[kind]], tempPos, Quaternion.identity);
+
+                // Set position
+                dot dotComponent = preloadDot.GetComponent<dot>();
+                dotComponent.column = valueX;
+                dotComponent.row = valueY;
+
+                // Rename
+                preloadDot.name = dots[tileKindToDotIndex[kind]].name + "_preload_" + i;
+
+                // Add to dots
+                allDots[valueX, valueY] = preloadDot;
+            }
+        }
+    }
+
     public void GenBlankCells()
     {
         for (int i = 0; i < boardLayout.Length; i++)
@@ -215,13 +272,15 @@ public class game_board : MonoBehaviour
     {
         for (int i = 0; i < boardLayout.Length; i++)
         {
-            if (boardLayout[i].tileKind == TileKind.Breakable)
+            if (boardLayout[i].tileKind == TileKind.Breakable01)
             {
                 Vector2 tempPos = new Vector2(boardLayout[i].x, boardLayout[i].y);
 
-                GameObject tile = Instantiate(breakableTilePrefab, tempPos, Quaternion.identity);
+                GameObject tileBreakable01 = Instantiate(breakableTilePrefab, tempPos, Quaternion.identity);
 
-                breakableCells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
+                breakableCells[boardLayout[i].x, boardLayout[i].y] = tileBreakable01.GetComponent<tile_back>();
+
+                tileBreakable01.name = "break_01_" + i + "_" + boardLayout[i].x + "-" + boardLayout[i].y;
 
                 //add to all
                 allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
@@ -259,7 +318,7 @@ public class game_board : MonoBehaviour
                 Vector2 tempPos = new Vector2(boardLayout[i].x, boardLayout[i].y);
 
                 GameObject tileBlocker = Instantiate(blocker01Prefab, tempPos, Quaternion.identity);
-                tileBlocker.name = "blocker_01_" +i+"_"+boardLayout[i].x +"-"+ boardLayout[i].y;
+                tileBlocker.name = "blocker_01_" + i + "_"+boardLayout[i].x + "-" + boardLayout[i].y;
 
                 blocker01Cells[boardLayout[i].x, boardLayout[i].y] = tileBlocker.GetComponent<tile_back>();
 
@@ -521,6 +580,13 @@ public class game_board : MonoBehaviour
 
         GenBonusCells();
 
+        //if not null
+        if (preloadBoardLayout != null )
+        {
+            GenPreloadLayout();
+        }
+        
+
         //add all dots
         for (int i = 0; i < width; i++)
         {
@@ -764,9 +830,7 @@ public class game_board : MonoBehaviour
     }
 
     private void DestroyMatchesAt(int column, int row)
-    {
-        //Debug.Log("" + goalManagerClass.levelGoals[0].matchValue);
-
+    {        
         if (allDots[column, row].GetComponent<dot>().isMatched)
         {
 
@@ -810,10 +874,8 @@ public class game_board : MonoBehaviour
                     goalManagerClass.CompareGoal(colrowBombs); //for line bombs
                 }else if (curDotGet.isWrapBomb)
                 {
-                    goalManagerClass.CompareGoal("WrapBomb"); //for Wrap bombs
-                    Debug.Log("Wrap");
-                }
-                else
+                    goalManagerClass.CompareGoal("WrapBomb"); //for Wrap bombs                    
+                }else
                 {
                     goalManagerClass.CompareGoal(allDots[column, row].tag.ToString()); //for usual dots
                 }
@@ -878,8 +940,6 @@ public class game_board : MonoBehaviour
                 }
             }
         }
-
-        //Debug.Log("Bomb Column Created!");
     }
 
     private void DamageBlocker01(int column, int row)

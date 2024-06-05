@@ -1,10 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.RuleTile.TilingRuleOutput;
-using UnityEngine.UIElements;
-using Unity.VisualScripting;
+
 
 public class dot : MonoBehaviour
 {
@@ -37,6 +33,9 @@ public class dot : MonoBehaviour
     public bool isRowBomb;
     public bool isColorBomb;
     public bool isWrapBomb;
+
+    [Header("Color")]
+    public Color objColor; //for colorize wrap
 
     public GameObject columnBomb;
     public GameObject rowBomb;
@@ -307,8 +306,62 @@ public class dot : MonoBehaviour
             isWrapBomb = true;
             GameObject wrap = Instantiate(wrapBomb, transform.position, Quaternion.identity);
             wrap.transform.parent = this.transform;
-            wrap.name = this.name + "_wbomb";            
+            wrap.name = this.name + "_wbomb";
+
+            Color objColor = this.GetComponent<dot>().objColor;
+            Color modifiedColor = objColor; //fix alpha
+            modifiedColor.a = 1.0f;
+
+            //set color of object
+            SpriteRenderer wrapSpriteRenderer = wrap.GetComponent<SpriteRenderer>();           
+
+            wrapSpriteRenderer.color = modifiedColor;
+
+
+
+            GameObject childObject = FindChildByName(transform, "wrap_effect");
+
+            if (childObject != null)
+            {
+                ParticleSystem particleSystem = childObject.GetComponent<ParticleSystem>();
+
+                if (particleSystem != null)
+                {
+                    var mainModule = particleSystem.main;
+                    mainModule.startColor = objColor;
+                }
+            }
+
+            childObject.name = this.name + "_wrap_effect";
+
+            //Debug.Log(startColor);
+
+            //turn off under sprite
+
+            SpriteRenderer spriteRenderer = this.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.enabled = false; // Turn on the sprite renderer                
+            }
         }
+    }
+
+    GameObject FindChildByName(UnityEngine.Transform parent, string name)
+    {
+        foreach (UnityEngine.Transform child in parent)
+        {
+            if (child.name == name)
+            {
+                return child.gameObject;
+            }
+
+            GameObject result = FindChildByName(child, name);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+        return null;
     }
 
 }

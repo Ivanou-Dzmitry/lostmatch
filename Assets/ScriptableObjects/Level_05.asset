@@ -117,6 +117,40 @@ MonoBehaviour:
   - x: 3
     y: 2
     tileKind: 7
+  - x: 2
+    y: 5
+    tileKind: 3
+  - x: 4
+    y: 5
+    tileKind: 3
+  - x: 2
+    y: 3
+    tileKind: 3
+  - x: 4
+    y: 3
+    tileKind: 3
+  - x: 3
+    y: 3
+    tileKind: 3
+  preloadBoardLayout:
+  - x: 3
+    y: 4
+    tileKind: 11
+  - x: 3
+    y: 5
+    tileKind: 11
+  - x: 2
+    y: 6
+    tileKind: 11
+  - x: 4
+    y: 6
+    tileKind: 11
+  - x: 3
+    y: 7
+    tileKind: 11
+  - x: 3
+    y: 6
+    tileKind: 12
   dots:
   - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
   - {fileID: 4480997535196168054, guid: d5ca9b3f6961fa040b6373c035b19b90, type: 3}
@@ -127,7 +161,7 @@ MonoBehaviour:
     counterValue: 15
   levelGoals:
   - numberGoalsNeeded: 24
-    numberCollectedGoals: 0
+    numberCollectedGoals: 9
     goalSprite: {fileID: 21300000, guid: f5d7abee0f1daa24c8c8ee29a82b41dc, type: 3}
     matchValue: blocker_01
   - numberGoalsNeeded: 3

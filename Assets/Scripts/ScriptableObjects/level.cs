@@ -12,6 +12,9 @@ public class level : ScriptableObject
     [Header("Layout")]
     public TileType[] boardLayout;
 
+    [Header("Preload Layout")]
+    public TileType[] preloadBoardLayout;
+
     [Header("Object Types")]
     public GameObject[] dots;
 
