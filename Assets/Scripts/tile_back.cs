@@ -5,12 +5,20 @@ using UnityEngine;
 public class tile_back : MonoBehaviour
 {
     public int hitPoints;
-    private SpriteRenderer sprite;
+
+    public GameObject destroyParticle;
+    //private SpriteRenderer sprite;
     private goal_manager goalManagerClass;
+
+    //for mylti hits objects
+    [Header("Layers")]
+    public GameObject objLayer02;
+    public GameObject objLayer03;
+    
 
     private void Start()
     {
-        sprite = GetComponent<SpriteRenderer>();
+        //sprite = GetComponent<SpriteRenderer>();
         goalManagerClass = FindObjectOfType<goal_manager>();
     }
 
@@ -18,7 +26,7 @@ public class tile_back : MonoBehaviour
     {
         if (hitPoints <= 0)
         {
-            //for goals
+            //for goals for breakable
             if(goalManagerClass != null)
             {
                 goalManagerClass.CompareGoal(this.gameObject.tag);
@@ -38,11 +46,23 @@ public class tile_back : MonoBehaviour
 
     void SpriteOpacity()
     {
-        Color curColor = sprite.color;
+        //hide if 1 hitpoint
+        if (objLayer02 != null && hitPoints == 1)
+        {
+            objLayer02.gameObject.SetActive(false);
+        }
 
-        float newAlpha = curColor.a * .5f;
+        //hide if 2 hitpoint
+        if (objLayer02 != null && hitPoints == 2)
+        {
+            objLayer02.gameObject.SetActive(false);
+        }
 
-        sprite.color = new Color(curColor.r, curColor.g, curColor.b, newAlpha);
+        //Color curColor = sprite.color;
+
+        //float newAlpha = curColor.a * .5f;
+
+        //sprite.color = new Color(curColor.r, curColor.g, curColor.b, newAlpha);
     }
 
 }

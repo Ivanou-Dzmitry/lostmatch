@@ -30,7 +30,9 @@ public enum TileKind
     element_02,
     element_03,
     element_04,
-    element_05
+    element_05,
+    Breakable02,
+    Blocker02
 }
 
 [System.Serializable]
@@ -67,9 +69,11 @@ public class game_board : MonoBehaviour
     public GameObject tilePrefab;
     public GameObject tileCornerPrefab;
 
-    public GameObject breakableTilePrefab; 
+    public GameObject break01Prefab;
+    public GameObject break02Prefab;
     public GameObject lockTilePrefab; //lock object
     public GameObject blocker01Prefab; //lock object
+    public GameObject blocker02Prefab; //lock object
     public GameObject slimeTilePrefab; //lock object
 
     //bonus
@@ -108,7 +112,10 @@ public class game_board : MonoBehaviour
 
     //for preload
     public tile_back[,] preloadCells;
+    //dict
     private Dictionary<TileKind, int> tileKindToDotIndex;
+    private Dictionary<TileKind, GameObject> tileKindToPrefab;
+    private Dictionary<TileKind, GameObject> tileKindToPrefabBlockers;
 
     //bonus
     private tile_back[,] bonusCells;
@@ -176,6 +183,19 @@ public class game_board : MonoBehaviour
             { TileKind.element_03, 2 },
             { TileKind.element_04, 3 },
             { TileKind.element_05, 4 }
+        };
+
+        //for break
+        tileKindToPrefab = new Dictionary<TileKind, GameObject>
+        {
+            { TileKind.Breakable01, break01Prefab },
+            { TileKind.Breakable02, break02Prefab }
+        };
+
+        tileKindToPrefabBlockers = new Dictionary<TileKind, GameObject>
+        {
+            { TileKind.Blocker01, blocker01Prefab },
+            { TileKind.Blocker02, blocker02Prefab }
         };
 
     }
@@ -272,17 +292,21 @@ public class game_board : MonoBehaviour
     {
         for (int i = 0; i < boardLayout.Length; i++)
         {
-            if (boardLayout[i].tileKind == TileKind.Breakable01)
+            TileKind kind = boardLayout[i].tileKind;
+
+            if (tileKindToPrefab.ContainsKey(kind))
             {
                 Vector2 tempPos = new Vector2(boardLayout[i].x, boardLayout[i].y);
+                
+                GameObject prefab = tileKindToPrefab[kind];
 
-                GameObject tileBreakable01 = Instantiate(breakableTilePrefab, tempPos, Quaternion.identity);
+                GameObject tileBreakable = Instantiate(prefab, tempPos, Quaternion.identity);
 
-                breakableCells[boardLayout[i].x, boardLayout[i].y] = tileBreakable01.GetComponent<tile_back>();
+                breakableCells[boardLayout[i].x, boardLayout[i].y] = tileBreakable.GetComponent<tile_back>();
 
-                tileBreakable01.name = "break_01_" + i + "_" + boardLayout[i].x + "-" + boardLayout[i].y;
+                tileBreakable.name = prefab.name + "_" + i + "_" + boardLayout[i].x + "-" + boardLayout[i].y;
 
-                //add to all
+                // Add to all
                 allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
             }
         }
@@ -309,23 +333,25 @@ public class game_board : MonoBehaviour
     //bubble gum
     private void GenBlock01Tiles()
     {
-        
 
         for (int i = 0; i < boardLayout.Length; i++)
         {
-            if (boardLayout[i].tileKind == TileKind.Blocker01)
+            TileKind kind = boardLayout[i].tileKind;
+            if (tileKindToPrefabBlockers.ContainsKey(kind))
             {
                 Vector2 tempPos = new Vector2(boardLayout[i].x, boardLayout[i].y);
+                GameObject prefab = tileKindToPrefabBlockers[kind];
 
-                GameObject tileBlocker = Instantiate(blocker01Prefab, tempPos, Quaternion.identity);
-                tileBlocker.name = "blocker_01_" + i + "_"+boardLayout[i].x + "-" + boardLayout[i].y;
+                GameObject tileBlocker = Instantiate(prefab, tempPos, Quaternion.identity);
+                tileBlocker.name = prefab.name + "_" + i + "_" + boardLayout[i].x + "-" + boardLayout[i].y;
 
                 blocker01Cells[boardLayout[i].x, boardLayout[i].y] = tileBlocker.GetComponent<tile_back>();
 
-                //add to all
-                allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;                
+                // Add to all
+                allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
             }
         }
+
     }
 
     private void GenSlimeTiles()
@@ -418,11 +444,13 @@ public class game_board : MonoBehaviour
                     Vector2 tempCorner = new Vector2(tempX, tempY);
 
                     if (!cornerCoords.Contains(tempCorner))
+                    {
                         cornerCoords.Add(tempCorner);
 
-                    //add corenr rotation
-                    Vector3 tempAngle = new Vector3(0, 0, 0);
-                    cornerRotation.Add(tempAngle);
+                        //add corenr rotation
+                        Vector3 tempAngle = new Vector3(0, 0, 0);
+                        cornerRotation.Add(tempAngle);
+                    }                        
                     break;
                 }
             }
@@ -445,11 +473,15 @@ public class game_board : MonoBehaviour
                     Vector2 tempCorner = new Vector2(tempX, tempY);
 
                     if (!cornerCoords.Contains(tempCorner))
+                    {
                         cornerCoords.Add(tempCorner);
+                        //add corenr rotation
+                        Vector3 tempAngle = new Vector3(0, 0, 90);
+                        cornerRotation.Add(tempAngle);
+                    }
+                        
                     
-                    //add corenr rotation
-                    Vector3 tempAngle = new Vector3(0, 0, 90);
-                    cornerRotation.Add(tempAngle);
+
                     break;
                 }
             }
@@ -466,19 +498,23 @@ public class game_board : MonoBehaviour
 
                 //add corner position
                 if (allNonBlankDots[i, j])
-                {
+                {                   
                     //add corner position
                     float tempX = allTypeDotsCoord[i, j].x;
                     float tempY = allTypeDotsCoord[i, j].y;
 
                     Vector2 tempCorner = new Vector2(tempX, tempY);
+                    Vector2 prevCorner = new Vector2(tempX-1, tempY); // for previous non blank coord
 
-                    if (!cornerCoords.Contains(tempCorner))
+                    if (!cornerCoords.Contains(tempCorner) && !cornerCoords.Contains(prevCorner))
+                    {
                         cornerCoords.Add(tempCorner);
+                        //add corenr rotation
+                        Vector3 tempAngle = new Vector3(0, 0, -90);
+                        cornerRotation.Add(tempAngle);
+                    }
+                        
 
-                    //add corenr rotation
-                    Vector3 tempAngle = new Vector3(0, 0, -90);
-                    cornerRotation.Add(tempAngle);
                     break;
                 }
             }
@@ -494,17 +530,22 @@ public class game_board : MonoBehaviour
             {
                 if (allNonBlankDots[i, j])
                 {
+
+                    Debug.Log("CornerDot:" + allNonBlankDots[i, j] + ": " + i + "/" + j);
                     //add corner position
                     float tempX = allTypeDotsCoord[i, j].x;
                     float tempY = allTypeDotsCoord[i, j].y;
 
                     Vector2 tempCorner = new Vector2(tempX, tempY);
+                    Vector2 prevCorner = new Vector2(tempX + 1, tempY); // for previous non blank coord
 
-                    if (!cornerCoords.Contains(tempCorner))
+                    if (!cornerCoords.Contains(tempCorner) && !cornerCoords.Contains(prevCorner))
+                    {
                         cornerCoords.Add(tempCorner);
+                        Vector3 tempAngle = new Vector3(0, 0, 180);
+                        cornerRotation.Add(tempAngle);
+                    }                       
 
-                    Vector3 tempAngle = new Vector3(0, 0, 180);
-                    cornerRotation.Add(tempAngle);
                     break;
                 }
             }
@@ -834,8 +875,10 @@ public class game_board : MonoBehaviour
         if (allDots[column, row].GetComponent<dot>().isMatched)
         {
 
-            GameObject currentDot = allDots[column, row];
+            GameObject currentDot = allDots[column, row];            
             dot curDotGet = currentDot.GetComponent<dot>();
+
+            //tile_back curDotTile = currentDot.GetComponent<tile_back>();
 
             //breakable tiles
             if (breakableCells[column, row] != null)
@@ -844,6 +887,12 @@ public class game_board : MonoBehaviour
 
                 if (breakableCells[column, row].hitPoints <= 0)
                 {
+                    tile_back currentBreak01 = breakableCells[column, row];
+
+                    //particles for break
+                    GameObject break01Part = Instantiate(currentBreak01.destroyParticle, allDots[column, row].transform.position, Quaternion.identity);
+                    Destroy(break01Part, 1.0f);
+
                     breakableCells[column, row] = null;
                 }
             }
@@ -857,8 +906,9 @@ public class game_board : MonoBehaviour
                 {
                     lockCells[column, row] = null;
                 }
-            }                
+            }
 
+                     
             //for blockers
             DamageBlocker01(column, row);
 
@@ -866,7 +916,7 @@ public class game_board : MonoBehaviour
             DamageSlime(column, row);
 
             
-            //goal
+            //goal for dots
             if (goalManagerClass != null)
             {
                 if (curDotGet.isRowBomb || curDotGet.isColumnBomb)
@@ -888,11 +938,15 @@ public class game_board : MonoBehaviour
             if (soundManagerClass != null)
             {
                 soundManagerClass.PlayDestroySound();
-            }
+            }    
+
+            //GameObject particleBrak = Instantiate(curDotTile.destroyParticle, allDots[column, row].transform.position, Quaternion.identity);
+            //Destroy(particleBrak, 1.0f);
 
             //particles
-            GameObject particle = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
-            Destroy(particle, .6f);
+            GameObject particleDot = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
+            Destroy(particleDot, .9f);
+
 
             Destroy(allDots[column, row]);           
 
@@ -942,57 +996,38 @@ public class game_board : MonoBehaviour
         }
     }
 
+
     private void DamageBlocker01(int column, int row)
     {
-        if(column > 0)
+        DamageBlockerAt(column - 1, row);
+        DamageBlockerAt(column + 1, row);
+        DamageBlockerAt(column, row - 1);
+        DamageBlockerAt(column, row + 1);
+    }
+
+
+    private void DamageBlockerAt(int column, int row)
+    {
+        // Check if the position is within bounds
+        if (column >= 0 && column < width && row >= 0 && row < height)
         {
-            if (blocker01Cells[column -1, row])
+            // Check if there is a blocker at the position
+            if (blocker01Cells[column, row])
             {
-                blocker01Cells[column-1, row].TakeDamage(1);
+                // Apply damage
+                blocker01Cells[column, row].TakeDamage(1);
 
-                if (blocker01Cells[column-1, row].hitPoints <= 0)
+                // Log the current blocker
+                tile_back currentBlocker = blocker01Cells[column, row];
+                
+                //particles for break
+                GameObject blocker01Part = Instantiate(currentBlocker.destroyParticle, blocker01Cells[column, row].transform.position, Quaternion.identity);
+                Destroy(blocker01Part, 0.9f);
+
+                // Remove the blocker if its hit points are 0 or less
+                if (blocker01Cells[column, row].hitPoints <= 0)
                 {
-                    blocker01Cells[column-1, row] = null;
-                }
-            }
-        }
-
-        if (column <  width -1 )
-        {            
-            if (blocker01Cells[column + 1, row])
-            {
-                blocker01Cells[column + 1, row].TakeDamage(1);
-
-                if (blocker01Cells[column + 1, row].hitPoints <= 0)
-                {
-                    blocker01Cells[column + 1, row] = null;
-                }
-            }
-        }
-
-        if (row > 0)
-        {
-            if (blocker01Cells[column, row - 1])
-            {
-                blocker01Cells[column, row-1].TakeDamage(1);
-
-                if (blocker01Cells[column, row - 1].hitPoints <= 0)
-                {
-                    blocker01Cells[column, row - 1] = null;
-                }
-            }
-        }
-
-        if (row < height -1)
-        {
-            if (blocker01Cells[column, row + 1])
-            {
-
-                blocker01Cells[column, row+1].TakeDamage(1);
-
-                if (blocker01Cells[column, row + 1].hitPoints <= 0)
-                {
-                    blocker01Cells[column, row + 1] = null;
+                    blocker01Cells[column, row] = null;
                 }
             }
         }

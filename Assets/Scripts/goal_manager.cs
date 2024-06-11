@@ -116,11 +116,11 @@ public class goal_manager : MonoBehaviour
 
     public void CompareGoal(string goalToCompare)
     {
-        Debug.Log("Goal IN:" + goalToCompare);
+        //Debug.Log("Goal IN:" + goalToCompare);
 
         for (int i = 0; i < levelGoals.Length; i++)
         {
-            Debug.Log("Goal Level:" + levelGoals[i].matchValue);
+            //Debug.Log("Goal Level:" + levelGoals[i].matchValue);
 
             if (goalToCompare == levelGoals[i].matchValue)
             {
