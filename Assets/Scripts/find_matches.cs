@@ -158,8 +158,6 @@ public class find_matches : MonoBehaviour
                             {
                                 if (leftDot.tag == currentDot.tag && rightDot.tag == currentDot.tag) //compare tags form lr dots
                                 {
-
-
                                     //row bomb
                                     currentMatch.AddRange(IsRowBomb(leftDotGet, curDotGet, rightDotGet));
 
@@ -209,7 +207,6 @@ public class find_matches : MonoBehaviour
             }
         }
 
-        
     }
 
 

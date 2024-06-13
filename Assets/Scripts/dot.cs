@@ -16,7 +16,10 @@ public class dot : MonoBehaviour
     private Vector2 tempPos;
     public GameObject otherDot;
 
-    
+    [Header("Mask")]
+    public Sprite elementMask;
+
+
     [Header("Board Variables")]
     public bool isMatched = false;
     public int previousColumn, previousRow;
@@ -70,7 +73,7 @@ public class dot : MonoBehaviour
         {
             //Move Toward the target
             tempPos = new Vector2(targetX, transform.position.y);
-            transform.position = Vector2.Lerp(transform.position, tempPos, .5f);
+            transform.position = Vector2.Lerp(transform.position, tempPos, .9f);
                 
             if (gameBoardClass.allDots[column, row] != this.gameObject)
             {
@@ -88,7 +91,7 @@ public class dot : MonoBehaviour
         {
             //Move Toward the target
             tempPos = new Vector2(transform.position.x, targetY);
-            transform.position = Vector2.Lerp(transform.position, tempPos, .5f);
+            transform.position = Vector2.Lerp(transform.position, tempPos, .9f);
 
             if (gameBoardClass.allDots[column, row] != this.gameObject)
             {
@@ -127,7 +130,8 @@ public class dot : MonoBehaviour
                 row = previousRow;
                 column = previousColumn;
 
-                yield return new WaitForSeconds(.1f);
+                yield return new WaitForSeconds(.3f);
+
                 gameBoardClass.currentDot = null;
                 gameBoardClass.currentState = GameState.move;
             }
@@ -186,6 +190,8 @@ public class dot : MonoBehaviour
             MoveElement();
 
             gameBoardClass.currentDot = this;
+
+            //Debug.Log("move dot: " + this.name);
         }
         else
         {
@@ -198,9 +204,7 @@ public class dot : MonoBehaviour
     void MovePieceMechanics(Vector2 direction)
     {
         otherDot = gameBoardClass.allDots[column + (int)direction.x, row + (int)direction.y];
-
-        //Debug.Log("direction:" + direction);
-
+      
         previousRow = row;
         previousColumn = column;
 
@@ -263,6 +267,14 @@ public class dot : MonoBehaviour
             GameObject bombC = Instantiate(columnBomb, transform.position, Quaternion.identity);
             bombC.transform.parent = this.transform;
             bombC.name = this.name + "_columnb";
+
+            GameObject childObject = FindChildByName(transform, "mask");
+
+            if (childObject != null)
+            {
+                SpriteMask mask = childObject.GetComponent<SpriteMask>();
+                mask.sprite = this.elementMask;
+            }
         }
     }
 
@@ -275,6 +287,13 @@ public class dot : MonoBehaviour
             //this.tag = "row_bomb";
             bombR.transform.parent = this.transform;
             bombR.name = this.name + "_rowb";
+
+            GameObject childObject = FindChildByName(transform, "mask");
+            if (childObject != null)
+            {
+                SpriteMask mask = childObject.GetComponent<SpriteMask>();
+                mask.sprite = this.elementMask;
+            }
         }
     }
 
@@ -292,11 +311,9 @@ public class dot : MonoBehaviour
             SpriteRenderer spriteRenderer = this.GetComponent<SpriteRenderer>();
             if (spriteRenderer != null)
             {                
-                spriteRenderer.enabled = false; // Turn on the sprite renderer                
+                spriteRenderer.enabled = false;         
             }
-
         }
-
     }
 
     public void CookWrapBomb()
@@ -318,9 +335,9 @@ public class dot : MonoBehaviour
             wrapSpriteRenderer.color = modifiedColor;
 
 
-
             GameObject childObject = FindChildByName(transform, "wrap_effect");
 
+            //change color
             if (childObject != null)
             {
                 ParticleSystem particleSystem = childObject.GetComponent<ParticleSystem>();
@@ -333,15 +350,12 @@ public class dot : MonoBehaviour
             }
 
             childObject.name = this.name + "_wrap_effect";
-
-            //Debug.Log(startColor);
-
+           
             //turn off under sprite
-
             SpriteRenderer spriteRenderer = this.GetComponent<SpriteRenderer>();
             if (spriteRenderer != null)
             {
-                spriteRenderer.enabled = false; // Turn on the sprite renderer                
+                spriteRenderer.enabled = false;              
             }
         }
     }

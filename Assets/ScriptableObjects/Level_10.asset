@@ -195,16 +195,15 @@ MonoBehaviour:
     tileKind: 12
   dots:
   - {fileID: 6998997659268194242, guid: 6b865f15982fe624f9a1c45366647115, type: 3}
-  - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
   - {fileID: 4480997535196168054, guid: d5ca9b3f6961fa040b6373c035b19b90, type: 3}
   - {fileID: 3208557242404312580, guid: 9042c7df9b5a7124bbea3b9e51471a95, type: 3}
   - {fileID: 6550258979685578383, guid: 15611902203721f4191f3111b0f799b7, type: 3}
-  scoreGoals: 06000000080000000a000000
+  scoreGoals: 320000006400000096000000
   egRequrimentsLVL:
     gameType: 0
     counterValue: 22
   levelGoals:
-  - numberGoalsNeeded: 60
+  - numberGoalsNeeded: 38
     numberCollectedGoals: 0
-    goalSprite: {fileID: 21300000, guid: 78bd33c5d7df4694c8060e99d7f54ee8, type: 3}
-    matchValue: breakable_01
+    goalSprite: {fileID: 21300000, guid: f5d7abee0f1daa24c8c8ee29a82b41dc, type: 3}
+    matchValue: blocker_01

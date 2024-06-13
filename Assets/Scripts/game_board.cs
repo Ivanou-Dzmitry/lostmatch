@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+//state of the game
 public enum GameState
 {
     wait,
@@ -14,6 +15,7 @@ public enum GameState
     pause
 }
 
+//list of tiles
 public enum TileKind
 {
     Breakable01,
@@ -35,6 +37,7 @@ public enum TileKind
     Blocker02
 }
 
+//type of matches
 [System.Serializable]
 public class MatchType
 {
@@ -42,6 +45,7 @@ public class MatchType
     public string color;
 }
 
+//type of tiles
 [System.Serializable]   
 public class TileType
 {    
@@ -68,29 +72,27 @@ public class game_board : MonoBehaviour
     [Header("Prefabs")]
     public GameObject tilePrefab;
     public GameObject tileCornerPrefab;
-
     public GameObject break01Prefab;
     public GameObject break02Prefab;
-    public GameObject lockTilePrefab; //lock object
-    public GameObject blocker01Prefab; //lock object
-    public GameObject blocker02Prefab; //lock object
-    public GameObject slimeTilePrefab; //lock object
+    public GameObject lockTilePrefab; 
+    public GameObject blocker01Prefab; 
+    public GameObject blocker02Prefab; 
+    public GameObject slimeTilePrefab; 
 
     //bonus
     public GameObject colorBombPrefab; //lock object
 
+    //arrays
     public GameObject[] dots;
     public GameObject[,] allDots;
     public Vector2[,] allTypeDotsCoord;
     private bool[,] allNonBlankDots;
 
-    //public Vector2[,] tempDots;
-
-
     //for corner background
     List<Vector2> cornerCoords = new List<Vector2>();
     List<Vector3> cornerRotation = new List<Vector3>();
 
+    //VFX
     public GameObject destroyEffect;
 
     [Header("Layout")]
@@ -102,8 +104,11 @@ public class game_board : MonoBehaviour
 
     //for break
     private tile_back[,] breakableCells;
+
+    //for extendable
     private tile_back[,] slimeCells;
-    
+    private bool makeSlime = true;
+
     //for lock
     public tile_back[,] lockCells;
     
@@ -112,10 +117,11 @@ public class game_board : MonoBehaviour
 
     //for preload
     public tile_back[,] preloadCells;
+
     //dict
-    private Dictionary<TileKind, int> tileKindToDotIndex;
-    private Dictionary<TileKind, GameObject> tileKindToPrefab;
-    private Dictionary<TileKind, GameObject> tileKindToPrefabBlockers;
+    private Dictionary<TileKind, int> preloadDict;
+    private Dictionary<TileKind, GameObject> breacableDict;
+    private Dictionary<TileKind, GameObject> blockersDict;
 
     //bonus
     private tile_back[,] bonusCells;
@@ -123,14 +129,14 @@ public class game_board : MonoBehaviour
     [Header("Match Suff")]
     public MatchType matchTypeClass;
     public dot currentDot;
-    public string colrowBombs = "line_bomb";
+    public string colRowBombsName = "line_bomb"; //agregation for count
 
     //classes
     private find_matches findMatchesClass;
     private score_manager scoreManagerClass;
     private sound_manager soundManagerClass;
     private goal_manager goalManagerClass;
-    private bool makeSlime = true;
+    
 
     //for score
     public int baseValue = 1;
@@ -170,13 +176,12 @@ public class game_board : MonoBehaviour
                     boardLayout = worldClass.levels[level].boardLayout;
                     preloadBoardLayout = worldClass.levels[level].preloadBoardLayout;
                 }
-
             }
         }
 
 
-        // Initialize the dictionary
-        tileKindToDotIndex = new Dictionary<TileKind, int>
+        // Initialize the dictionary for preload
+        preloadDict = new Dictionary<TileKind, int>
         {
             { TileKind.element_01, 0 },
             { TileKind.element_02, 1 },
@@ -186,21 +191,20 @@ public class game_board : MonoBehaviour
         };
 
         //for break
-        tileKindToPrefab = new Dictionary<TileKind, GameObject>
+        breacableDict = new Dictionary<TileKind, GameObject>
         {
             { TileKind.Breakable01, break01Prefab },
             { TileKind.Breakable02, break02Prefab }
         };
 
-        tileKindToPrefabBlockers = new Dictionary<TileKind, GameObject>
+        //for blockers
+        blockersDict = new Dictionary<TileKind, GameObject>
         {
             { TileKind.Blocker01, blocker01Prefab },
             { TileKind.Blocker02, blocker02Prefab }
         };
 
     }
-
-
 
 
     // Start is called before the first frame update
@@ -222,12 +226,16 @@ public class game_board : MonoBehaviour
         //for preload
         preloadCells = new tile_back[width, height];
 
-        //
+        //for bonus
         bonusCells = new tile_back[width, height];
 
+        //all dots on board
         allDots = new GameObject[width, height];
 
+        //all types
         allTypeDotsCoord = new Vector2[width, height];
+
+        //non blanc dots
         allNonBlankDots = new bool [width, height];
 
         //setup board
@@ -251,7 +259,7 @@ public class game_board : MonoBehaviour
         {
             TileKind kind = preloadBoardLayout[i].tileKind;
 
-            if (tileKindToDotIndex.ContainsKey(kind))
+            if (preloadDict.ContainsKey(kind))
             {
                 Vector2 tempPos = new Vector2(preloadBoardLayout[i].x, preloadBoardLayout[i].y);
                 int valueX = preloadBoardLayout[i].x;
@@ -261,7 +269,7 @@ public class game_board : MonoBehaviour
                 Destroy(allDots[valueX, valueY].gameObject);
 
                 // Create preload
-                GameObject preloadDot = Instantiate(dots[tileKindToDotIndex[kind]], tempPos, Quaternion.identity);
+                GameObject preloadDot = Instantiate(dots[preloadDict[kind]], tempPos, Quaternion.identity);
 
                 // Set position
                 dot dotComponent = preloadDot.GetComponent<dot>();
@@ -269,7 +277,7 @@ public class game_board : MonoBehaviour
                 dotComponent.row = valueY;
 
                 // Rename
-                preloadDot.name = dots[tileKindToDotIndex[kind]].name + "_preload_" + i;
+                preloadDot.name = dots[preloadDict[kind]].name + "_preload_" + i;
 
                 // Add to dots
                 allDots[valueX, valueY] = preloadDot;
@@ -294,17 +302,18 @@ public class game_board : MonoBehaviour
         {
             TileKind kind = boardLayout[i].tileKind;
 
-            if (tileKindToPrefab.ContainsKey(kind))
+            if (breacableDict.ContainsKey(kind))
             {
                 Vector2 tempPos = new Vector2(boardLayout[i].x, boardLayout[i].y);
                 
-                GameObject prefab = tileKindToPrefab[kind];
-
+                GameObject prefab = breacableDict[kind];
                 GameObject tileBreakable = Instantiate(prefab, tempPos, Quaternion.identity);
 
                 breakableCells[boardLayout[i].x, boardLayout[i].y] = tileBreakable.GetComponent<tile_back>();
 
-                tileBreakable.name = prefab.name + "_" + i + "_" + boardLayout[i].x + "-" + boardLayout[i].y;
+                string dotName = prefab.name + "_" + i + "_" + boardLayout[i].x + "x" + boardLayout[i].y;
+
+                tileBreakable.name = dotName;
 
                 // Add to all
                 allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
@@ -324,8 +333,11 @@ public class game_board : MonoBehaviour
 
                 lockCells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
 
-                //add to all
-                allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
+                string dotName = tile.name + "-" + i;
+                tile.name = dotName;
+
+               //add to all
+               allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
             }
         }
     }
@@ -337,15 +349,18 @@ public class game_board : MonoBehaviour
         for (int i = 0; i < boardLayout.Length; i++)
         {
             TileKind kind = boardLayout[i].tileKind;
-            if (tileKindToPrefabBlockers.ContainsKey(kind))
+            if (blockersDict.ContainsKey(kind))
             {
                 Vector2 tempPos = new Vector2(boardLayout[i].x, boardLayout[i].y);
-                GameObject prefab = tileKindToPrefabBlockers[kind];
+                GameObject prefab = blockersDict[kind];
 
                 GameObject tileBlocker = Instantiate(prefab, tempPos, Quaternion.identity);
-                tileBlocker.name = prefab.name + "_" + i + "_" + boardLayout[i].x + "-" + boardLayout[i].y;
 
                 blocker01Cells[boardLayout[i].x, boardLayout[i].y] = tileBlocker.GetComponent<tile_back>();
+
+                //naming
+                string dotName = prefab.name + "-" + i + "-" + boardLayout[i].x + "x" + boardLayout[i].y;
+                tileBlocker.name = dotName;
 
                 // Add to all
                 allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
@@ -363,9 +378,12 @@ public class game_board : MonoBehaviour
             {
                 Vector2 tempPos = new Vector2(boardLayout[i].x, boardLayout[i].y);
 
-                GameObject tile = Instantiate(slimeTilePrefab, tempPos, Quaternion.identity);
+                GameObject expandingTile = Instantiate(slimeTilePrefab, tempPos, Quaternion.identity);
 
-                slimeCells[boardLayout[i].x, boardLayout[i].y] = tile.GetComponent<tile_back>();
+                slimeCells[boardLayout[i].x, boardLayout[i].y] = expandingTile.GetComponent<tile_back>();
+
+                string dotName = expandingTile.name + "-" + i;
+                expandingTile.name = dotName;
 
                 //add to all
                 allTypeDotsCoord[boardLayout[i].x, boardLayout[i].y] = tempPos;
@@ -378,6 +396,7 @@ public class game_board : MonoBehaviour
     {
         for (int i = 0; i < boardLayout.Length; i++)
         {
+            //colorBomb
             if (boardLayout[i].tileKind == TileKind.ColorBomb)
             {                                     
                 int column = boardLayout[i].x;
@@ -399,6 +418,7 @@ public class game_board : MonoBehaviour
                 }              
             }
 
+            //wrap bomb
             if (boardLayout[i].tileKind == TileKind.WrapBomb)
             {
                 int column = boardLayout[i].x;
@@ -479,9 +499,7 @@ public class game_board : MonoBehaviour
                         Vector3 tempAngle = new Vector3(0, 0, 90);
                         cornerRotation.Add(tempAngle);
                     }
-                        
-                    
-
+                                           
                     break;
                 }
             }
@@ -529,9 +547,7 @@ public class game_board : MonoBehaviour
             for (int j = rowsAllDots - 1; j >= 0; j--)
             {
                 if (allNonBlankDots[i, j])
-                {
-
-                    Debug.Log("CornerDot:" + allNonBlankDots[i, j] + ": " + i + "/" + j);
+                {                    
                     //add corner position
                     float tempX = allTypeDotsCoord[i, j].x;
                     float tempY = allTypeDotsCoord[i, j].y;
@@ -560,75 +576,72 @@ public class game_board : MonoBehaviour
     // setub board
     private void SetUp()
     {
+        //gen all types of dots
         GenBlankCells();
-
         GenBreakTiles();
-
         GenLockTiles();
-
         GenBlock01Tiles();
-
         GenSlimeTiles();
 
-        
-
+        //for naming
         int counter = 0;
 
-
+        //fill board with elements
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
                 if (!blankCells[i, j] && !blocker01Cells[i, j] && !slimeCells[i, j])
                 {
-                //temp position and offset
-                Vector2 tempPos = new Vector2(i, j + offSet);
-                Vector2 tilePos = new Vector2(i, j);                   
+                    //temp position and offset
+                    Vector2 tempPos = new Vector2(i, j + offSet);
+                    //Vector2 tilePos = new Vector2(i, j);                   
                                    
-                //add elements
-                int dotToUse = UnityEngine.Random.Range(0, dots.Length);
+                    //add elements
+                    int dotToUse = UnityEngine.Random.Range(0, dots.Length);
 
-                int maxItertion = 0;
+                    int maxItertion = 0;
 
-                //board without match
-                while(MatchesAt(i, j, dots[dotToUse]) && maxItertion < 100)
-                {
-                    dotToUse = UnityEngine.Random.Range(0, dots.Length);
-                    maxItertion++;
-                }
+                    //board without match
+                    while(MatchesAt(i, j, dots[dotToUse]) && maxItertion < 100)
+                    {
+                        dotToUse = UnityEngine.Random.Range(0, dots.Length);
+                        maxItertion++;
+                    }
 
-                maxItertion = 0;
+                    maxItertion = 0;
 
-                //instance
-                GameObject dot = Instantiate(dots[dotToUse], tempPos, Quaternion.identity);
+                    //instance dot
+                    GameObject dot = Instantiate(dots[dotToUse], tempPos, Quaternion.identity);
 
-                //for offset
-                dot.GetComponent<dot>().row = j;
-                dot.GetComponent<dot>().column = i;
+                    //for offset
+                    dot.GetComponent<dot>().row = j;
+                    dot.GetComponent<dot>().column = i;
 
-                //set properties
-                dot.transform.parent = this.transform;
+                    //set properties
+                    dot.transform.parent = this.transform;
 
-                counter++;
+                    counter++;
 
-                dot.name = dot.tag + "_" + counter + "_" + i + "-" + j;
+                    //dots naming
+                    dot.name = dot.tag + "_" + counter + "_" + i + "-" + j;
               
-                //add elements to array
-                allDots[i,j] = dot;                
+                    //add elements to array
+                    allDots[i,j] = dot;                
                 }
             }
         }
 
+        //bonus cells
         GenBonusCells();
 
-        //if not null
+        //if not null gen preload cells
         if (preloadBoardLayout != null )
         {
             GenPreloadLayout();
-        }
-        
+        }        
 
-        //add all dots
+        //add all dots to array
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
@@ -642,13 +655,8 @@ public class game_board : MonoBehaviour
             }
         }
 
-        
-
+        //find corners for background
         FindCorners();        
-
-        int columnsAllDots = allDots.GetLength(0);      
-        int rowsAllDots = allDots.GetLength(1);
-
 
         //fill back corners
         for (int i = 0; i < cornerCoords.Count; i++)
@@ -660,6 +668,9 @@ public class game_board : MonoBehaviour
         }
 
         counter = 0;
+
+        int columnsAllDots = allDots.GetLength(0);
+        int rowsAllDots = allDots.GetLength(1);
 
         //Fill back std tiles
         for (int i = 0; i < columnsAllDots; i++)
@@ -677,10 +688,11 @@ public class game_board : MonoBehaviour
                         backgroudTile.transform.parent = this.transform;
 
                         counter++;
-                        backgroudTile.name = "" + counter + "_Back" + i + "-" + j;
+
+                        string dotName = "" + counter + "-B1-" + i + "-" + j;
+                        backgroudTile.name = dotName;
                     }
-                }
-                else
+                } else
                 {
                     Vector2 tilePos = new Vector2(i, j);
 
@@ -688,31 +700,34 @@ public class game_board : MonoBehaviour
                     {
                         GameObject backgroudTile = Instantiate(tilePrefab, tilePos, Quaternion.identity) as GameObject;
                         backgroudTile.transform.parent = this.transform;
+                        counter++;
+
+                        string dotName = "" + counter + "-B2-" + i + "-" + j;
+                        backgroudTile.name = dotName;
                     }
 
                 }
             }
         }
-
-
-        
-
     }
 
     private bool MatchesAt(int column, int row, GameObject element)
     {
-        if (column > 1 && row > 1)
+        // Check horizontally for matches
+        if (column > 1)
         {
-            //for blank
-            if (allDots[column-1, row] != null && allDots[column - 2, row] != null)
-            {            
+            if (allDots[column - 1, row] != null && allDots[column - 2, row] != null)
+            {
                 if (allDots[column - 1, row].tag == element.tag && allDots[column - 2, row].tag == element.tag)
                 {
                     return true;
                 }
             }
+        }
 
-            //for blank
+        // Check vertically for matches
+        if (row > 1)
+        {
             if (allDots[column, row - 1] != null && allDots[column, row - 2] != null)
             {
                 if (allDots[column, row - 1].tag == element.tag && allDots[column, row - 2].tag == element.tag)
@@ -720,154 +735,130 @@ public class game_board : MonoBehaviour
                     return true;
                 }
             }
-
-        } else if(column <= 1 || row <= 1)
-        {
-            if(row > 1)
-            {
-                if (allDots[column, row - 1] != null && allDots[column, row - 2] != null)
-                {
-                    if (allDots[column, row - 1].tag == element.tag && allDots[column, row - 2].tag == element.tag)
-                        return true;
-                }
-
-            }
-
-            if (column > 1)
-            {
-                if (allDots[column - 1, row] != null && allDots[column - 2, row] != null)
-                {
-                    if (allDots[column - 1, row].tag == element.tag && allDots[column - 2, row].tag == element.tag)
-                        return true;
-                }
-            }
-
         }
+
         return false;
     }
 
     private MatchType ColumnOrRow()
     {
-        //copy of cur match
-        List<GameObject> matchCopy = findMatchesClass.currentMatch as List<GameObject>;        
+        // Copy of the current match
+        List<GameObject> matchCopy = new List<GameObject>(findMatchesClass.currentMatch);
 
         matchTypeClass.type = 0;
         matchTypeClass.color = "";
 
-        //cycle
-        for (int i = 0; i < matchCopy.Count; i++)
+        // Iterate through each dot in the match
+        foreach (GameObject matchObject in matchCopy)
         {
-            //sotore this dot
-            dot thisDot = matchCopy[i].GetComponent<dot>();
+            dot thisDot = matchObject.GetComponent<dot>();
+            string color = matchObject.tag;  // Get the color from the tag
 
-            //get color
-            string color = matchCopy[i].tag; //for class
-
-            //get column
             int column = thisDot.column;
             int row = thisDot.row;
 
             int columnMatch = 0;
             int rowMatch = 0;
 
-            //cycle 2
-            for (int j = 0; j < matchCopy.Count; j++)
+            // Compare with other dots in the match
+            foreach (GameObject otherMatchObject in matchCopy)
             {
-                //store next
-                dot nextDot = matchCopy[j].GetComponent<dot>();
-
-                if (nextDot == thisDot)
+                if (otherMatchObject == matchObject)
                 {
                     continue;
                 }
 
-                if(nextDot.column == thisDot.column && nextDot.CompareTag(color)) //fix tag
+                dot nextDot = otherMatchObject.GetComponent<dot>();
+
+                if (nextDot.column == column && nextDot.CompareTag(color))
                 {
-                    columnMatch++;  
+                    columnMatch++;
                 }
 
-                if (nextDot.row == thisDot.row && nextDot.CompareTag(color)) //fix tag
+                if (nextDot.row == row && nextDot.CompareTag(color))
                 {
                     rowMatch++;
                 }
-            }          
+            }
 
-            if (columnMatch == matchForRowColBomb || rowMatch == matchForRowColBomb) //column bomb
+            // Check for the type of match
+            if (columnMatch == matchForRowColBomb || rowMatch == matchForRowColBomb)
             {
                 matchTypeClass.type = 1;
                 matchTypeClass.color = color;
-                return matchTypeClass; 
-            } else if (columnMatch == matchForWrapBomb && rowMatch == matchForWrapBomb) // wrap
+                return matchTypeClass;
+            }
+            else if (columnMatch == matchForWrapBomb && rowMatch == matchForWrapBomb)
             {
                 matchTypeClass.type = 2;
                 matchTypeClass.color = color;
-                return matchTypeClass;   
-            } else if (columnMatch == matchForColorBomb || rowMatch == matchForColorBomb) //color bomb
+                return matchTypeClass;
+            }
+            else if (columnMatch == matchForColorBomb || rowMatch == matchForColorBomb)
             {
                 matchTypeClass.type = 3;
                 matchTypeClass.color = color;
-                return matchTypeClass; 
+                return matchTypeClass;
             }
         }
 
+        // If no match type found, return default
         matchTypeClass.type = 0;
         matchTypeClass.color = "";
-
-        return matchTypeClass;        
+        return matchTypeClass;
     }
 
 
     private void CheckToCookBombs()
     {
-        if(findMatchesClass.currentMatch.Count > minMatchCount)
+        if (findMatchesClass.currentMatch.Count > minMatchCount)
         {
-            //match type
+            // Determine match type
             MatchType typeOfMatch = ColumnOrRow();
 
-            if (typeOfMatch.type == 1)
+            if (currentDot != null)
             {
-                //color bomb
-                if (currentDot != null && currentDot.isMatched && currentDot.tag == typeOfMatch.color)
-                {
-                        currentDot.isMatched = false;
-                        currentDot.CookColorBomb();
-                }
-                else
-                {
-                    if (currentDot.otherDot != null)
-                    {
-                        dot otherDot = currentDot.otherDot.GetComponent<dot>();
+                bool currentDotMatched = currentDot.isMatched && currentDot.tag == typeOfMatch.color;
+                dot otherDot = currentDot.otherDot != null ? currentDot.otherDot.GetComponent<dot>() : null;
+                bool otherDotMatched = otherDot != null && otherDot.isMatched && otherDot.tag == typeOfMatch.color;
 
-                        if (otherDot.isMatched && otherDot.tag == typeOfMatch.color)
+                switch (typeOfMatch.type)
+                {
+                    case 1:
+                        // Color bomb
+                        if (currentDotMatched)
+                        {
+                            currentDot.isMatched = false;
+                            currentDot.CookColorBomb();
+                        }
+                        else if (otherDotMatched)
                         {
                             otherDot.isMatched = false;
                             otherDot.CookColorBomb();
                         }
-                    }
+                        break;
+                    case 2:
+                        // Wrap bomb
+                        if (currentDotMatched)
+                        {
+                            currentDot.isMatched = false;
+                            currentDot.CookWrapBomb();
+                        }
+                        else if (otherDotMatched)
+                        {
+                            otherDot.isMatched = false;
+                            otherDot.CookWrapBomb();
+                        }
+                        break;
+                    case 3:
+                        // Column/Row bomb
+                        findMatchesClass.ColumnRowBombsCheck(typeOfMatch);
+                        break;
+                    default:
+                        break;
                 }
-            } else if (typeOfMatch.type == 2)
-            {
-                //wrap bomb
-                if (currentDot != null && currentDot.isMatched && currentDot.tag == typeOfMatch.color)
-                {
-                    currentDot.isMatched = false;
-                    currentDot.CookWrapBomb();
-                }
-                else if (currentDot.otherDot != null)
-                {                    
-                    dot otherDot = currentDot.otherDot.GetComponent<dot>();
-
-                    if (otherDot.isMatched && otherDot.tag == typeOfMatch.color)
-                    {
-                        otherDot.isMatched = false;
-                        otherDot.CookWrapBomb();
-                    }
-                }
-            } else if (typeOfMatch.type == 3)
-            {
-                findMatchesClass.ColumnRowBombsCheck(typeOfMatch);
             }
-        }        
+        }
     }
 
     private void DestroyMatchesAt(int column, int row)
@@ -878,8 +869,7 @@ public class game_board : MonoBehaviour
             GameObject currentDot = allDots[column, row];            
             dot curDotGet = currentDot.GetComponent<dot>();
 
-            //tile_back curDotTile = currentDot.GetComponent<tile_back>();
-
+           
             //breakable tiles
             if (breakableCells[column, row] != null)
             {
@@ -891,7 +881,7 @@ public class game_board : MonoBehaviour
 
                     //particles for break
                     GameObject break01Part = Instantiate(currentBreak01.destroyParticle, allDots[column, row].transform.position, Quaternion.identity);
-                    Destroy(break01Part, 1.0f);
+                    Destroy(break01Part, 0.9f);
 
                     breakableCells[column, row] = null;
                 }
@@ -921,7 +911,7 @@ public class game_board : MonoBehaviour
             {
                 if (curDotGet.isRowBomb || curDotGet.isColumnBomb)
                 {
-                    goalManagerClass.CompareGoal(colrowBombs); //for line bombs
+                    goalManagerClass.CompareGoal(colRowBombsName); //for line bombs
                 }else if (curDotGet.isWrapBomb)
                 {
                     goalManagerClass.CompareGoal("WrapBomb"); //for Wrap bombs                    
@@ -940,31 +930,27 @@ public class game_board : MonoBehaviour
                 soundManagerClass.PlayDestroySound();
             }    
 
-            //GameObject particleBrak = Instantiate(curDotTile.destroyParticle, allDots[column, row].transform.position, Quaternion.identity);
-            //Destroy(particleBrak, 1.0f);
-
             //particles
             GameObject particleDot = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
             Destroy(particleDot, .9f);
 
 
-            Destroy(allDots[column, row]);           
+            if (allDots[column, row].GetComponent<dot>().isMatched)
+            {
+                // Optional: Add any additional logic before destroying the match
+                scoreManagerClass.IncreaseScore(baseValue * streakValue);
+                Destroy(allDots[column, row]);             
+                allDots[column, row] = null;
+            }
 
-            scoreManagerClass.IncreaseScore(baseValue * streakValue);
-
-            allDots[column,row] = null;
         }
     }
 
     //for bomb for concrete
     public void BombRow(int row)
     {
-        //Debug.Log(blocker01Cells.Length);
-
         for (int i = 0; i < width; i++)
         {
-           //Debug.Log("row: " + row);
-
             if (blocker01Cells[i, row])
             {
                 blocker01Cells[i, row].TakeDamage(1);
@@ -975,13 +961,11 @@ public class game_board : MonoBehaviour
                 }
             }
         }
-
-        //Debug.Log("Bomb Row Created!");
+      
     }
 
     public void BombColumn(int column)
-    {
-        
+    {   
         for (int i = 0; i < height; i++)
         {
             if (blocker01Cells[column, i])
@@ -1033,66 +1017,43 @@ public class game_board : MonoBehaviour
         }
     }
 
+
+    private void DamageAdjacentSlime(int column, int row)
+    {
+        if (slimeCells[column, row])
+        {
+            slimeCells[column, row].TakeDamage(1);
+
+            if (slimeCells[column, row].hitPoints <= 0)
+            {
+                slimeCells[column, row] = null;
+            }
+
+            makeSlime = false;
+        }
+    }
+
+
     private void DamageSlime(int column, int row)
     {
         if (column > 0)
         {
-            if (slimeCells[column - 1, row])
-            {
-                slimeCells[column - 1, row].TakeDamage(1);
-
-                if (slimeCells[column - 1, row].hitPoints <= 0)
-                {
-                    slimeCells[column - 1, row] = null;
-                }
-                makeSlime = false;
-            }
+            DamageAdjacentSlime(column - 1, row);
         }
 
         if (column < width - 1)
         {
-            if (slimeCells[column + 1, row])
-            {
-                slimeCells[column + 1, row].TakeDamage(1);
-
-                if (slimeCells[column + 1, row].hitPoints <= 0)
-                {
-                    slimeCells[column + 1, row] = null;
-                }
-
-                makeSlime = false;
-            }
+            DamageAdjacentSlime(column + 1, row);
         }
 
         if (row > 0)
         {
-            if (slimeCells[column, row - 1])
-            {
-                slimeCells[column, row - 1].TakeDamage(1);
-
-                if (slimeCells[column, row - 1].hitPoints <= 0)
-                {
-                    slimeCells[column, row - 1] = null;
-                }
-
-                makeSlime = false;
-            }
+            DamageAdjacentSlime(column, row - 1);
         }
 
         if (row < height - 1)
         {
-            if (slimeCells[column, row + 1])
-            {
-
-                slimeCells[column, row + 1].TakeDamage(1);
-
-                if (slimeCells[column, row + 1].hitPoints <= 0)
-                {
-                    slimeCells[column, row + 1] = null;
-                }
-
-                makeSlime = false;
-            }
+            DamageAdjacentSlime(column, row + 1);
         }
     }
 
@@ -1142,29 +1103,32 @@ public class game_board : MonoBehaviour
 
     private void BirthSlimes()
     {
-        bool slime = false;
-
+        bool slimeBorn = false;
         int loops = 0;
+        const int maxLoops = 200;
 
-        while (!slime && loops < 200)
+        while (!slimeBorn && loops < maxLoops)
         {
-            int newX = UnityEngine.Random.Range(0, width);  
+            int newX = UnityEngine.Random.Range(0, width);
             int newY = UnityEngine.Random.Range(0, height);
 
             if (slimeCells[newX, newY])
             {
-                Vector2 adj = CheckForAdj(newX, newY);  
+                Vector2 adj = CheckForAdj(newX, newY);
 
                 if (adj != Vector2.zero)
                 {
-                    Destroy(allDots[newX + (int)adj.x, newY + (int)adj.y]);
-                    Vector2 tempPos = new Vector2(newX + (int)adj.x, newY + (int)adj.y);
+                    int adjX = newX + (int)adj.x;
+                    int adjY = newY + (int)adj.y;
 
-                    //add slime
+                    Destroy(allDots[adjX, adjY]);
+                    Vector2 tempPos = new Vector2(adjX, adjY);
+
+                    // Add slime
                     GameObject tile = Instantiate(slimeTilePrefab, tempPos, Quaternion.identity);
-                    slimeCells[newX + (int)adj.x, newY + (int)adj.y] = tile.GetComponent<tile_back>();
+                    slimeCells[adjX, adjY] = tile.GetComponent<tile_back>();
 
-                    slime = true;
+                    slimeBorn = true;
                 }
             }
 
@@ -1193,7 +1157,7 @@ public class game_board : MonoBehaviour
             }
         }
 
-        findMatchesClass.currentMatch.Clear();
+        //findMatchesClass.currentMatch.Clear();
 
         StartCoroutine(DecreaseRowCo());
     }
@@ -1204,15 +1168,16 @@ public class game_board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (allDots[i, j] == null && !blankCells[i, j] && !blocker01Cells[i, j] && !slimeCells[i, j]) //add skip to fill cells
+                if (allDots[i, j] == null && !blankCells[i, j] && !blocker01Cells[i, j] && !slimeCells[i, j])
                 {
-
-                    for(int k = j+1; k < height; k++)
+                    for (int k = j + 1; k < height; k++)
                     {
                         if (allDots[i, k] != null)
                         {
+                            // Move dot to the new position
                             allDots[i, k].GetComponent<dot>().row = j;
-                            allDots[i, k] = null;
+                            allDots[i, j] = allDots[i, k]; // Move reference to the new position
+                            allDots[i, k] = null; // Clear the old position
                             break;
                         }
                     }
@@ -1220,53 +1185,45 @@ public class game_board : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(refillDelay * 0.5f);
+        yield return new WaitForSeconds(0.4f); //refillDelay * 1.0f
+
         StartCoroutine(FillBoardCo());
     }
 
     private void RefillBoard()
     {
         int counter = 0;
+        string currentTime = DateTime.Now.ToString("mmss");
 
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
-                if (allDots[i, j] == null && !blankCells[i,j] && !blocker01Cells[i, j] && !slimeCells[i, j]) //not refill here
+                if (allDots[i, j] == null && !blankCells[i, j] && !blocker01Cells[i, j] && !slimeCells[i, j])
                 {
                     Vector2 tempPosition = new Vector2(i, j + offSet);
-
                     int dotToUse = UnityEngine.Random.Range(0, dots.Length);
-
                     int maxIter = 0;
-                    
-                    while (MatchesAt(i, j, dots[dotToUse]) && maxIter<200)
-                    {
-                        maxIter++;
-                        dotToUse = UnityEngine.Random.Range(0, dots.Length);
-                    }
-                    
-                    maxIter = 0;
 
-                    GameObject element = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);                    
+                    while (MatchesAt(i, j, dots[dotToUse]) && maxIter < 200)
+                    {
+                        dotToUse = UnityEngine.Random.Range(0, dots.Length);
+                        maxIter++;
+                    }
+
+                    GameObject element = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
                     allDots[i, j] = element;
 
-                    //for offset
-                    element.GetComponent<dot>().row = j;
-                    element.GetComponent<dot>().column = i;
+                    // Set dot properties
+                    dot dotComponent = element.GetComponent<dot>();
+                    dotComponent.row = j;
+                    dotComponent.column = i;
 
                     counter++;
-
-                    //for naming
-                    DateTime now = DateTime.Now;
-                    string currentTime = now.ToString("mmss");
-
-                    element.name = element.tag + "_" + currentTime + "_" + counter;
+                    element.name = $"{element.tag}_{currentTime}_{counter}";
                 }
-
             }
         }
-
     }
 
     private bool MatchesOnBoard()
@@ -1327,8 +1284,6 @@ public class game_board : MonoBehaviour
         makeSlime = true;
 
         streakValue = 1;
-
-        //Debug.Log("Refill");
     }
 
     private void SwitchPieces (int column, int row, Vector2 direction)

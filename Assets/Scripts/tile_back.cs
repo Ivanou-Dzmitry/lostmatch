@@ -29,7 +29,24 @@ public class tile_back : MonoBehaviour
             //for goals for breakable
             if(goalManagerClass != null)
             {
-                goalManagerClass.CompareGoal(this.gameObject.tag);
+                string tagForCompare = this.gameObject.tag;
+
+                //hack for various breakable
+                if (this.gameObject.tag == "breakable_02" || this.gameObject.tag == "breakable_03" && this.gameObject.tag!= null)
+                {
+                    tagForCompare = "breakable_01";
+                }
+
+                //hack for various blockers
+                if (this.gameObject.tag == "blocker_02" || this.gameObject.tag == "blocker_03" && this.gameObject.tag != null)
+                {
+                    tagForCompare = "blocker_01";
+                }
+
+                goalManagerClass.CompareGoal(tagForCompare);
+                
+                Debug.Log("tag " + tagForCompare);
+
                 goalManagerClass.UpdateGoals();
             }
 

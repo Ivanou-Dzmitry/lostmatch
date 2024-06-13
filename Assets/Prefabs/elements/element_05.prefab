@@ -134,6 +134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   otherDot: {fileID: 0}
+  elementMask: {fileID: 21300000, guid: e0b919406cdae7240862cac2b2d26fc7, type: 3}
   isMatched: 0
   previousColumn: 0
   previousRow: 0
