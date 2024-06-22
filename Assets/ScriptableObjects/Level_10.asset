@@ -180,6 +180,21 @@ MonoBehaviour:
   - x: 4
     y: 6
     tileKind: 16
+  - x: 1
+    y: 6
+    tileKind: 9
+  - x: 6
+    y: 5
+    tileKind: 9
+  - x: 1
+    y: 3
+    tileKind: 9
+  - x: 6
+    y: 2
+    tileKind: 9
+  - x: 1
+    y: 0
+    tileKind: 9
   preloadBoardLayout:
   - x: 3
     y: 7
@@ -198,12 +213,12 @@ MonoBehaviour:
   - {fileID: 4480997535196168054, guid: d5ca9b3f6961fa040b6373c035b19b90, type: 3}
   - {fileID: 3208557242404312580, guid: 9042c7df9b5a7124bbea3b9e51471a95, type: 3}
   - {fileID: 6550258979685578383, guid: 15611902203721f4191f3111b0f799b7, type: 3}
-  scoreGoals: 320000006400000096000000
+  scoreGoals: 6400000096000000c8000000
   egRequrimentsLVL:
     gameType: 0
     counterValue: 22
   levelGoals:
   - numberGoalsNeeded: 38
-    numberCollectedGoals: 0
+    numberCollectedGoals: 17
     goalSprite: {fileID: 21300000, guid: f5d7abee0f1daa24c8c8ee29a82b41dc, type: 3}
     matchValue: blocker_01

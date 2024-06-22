@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5581927214428241952}
   - component: {fileID: -4811370217011775604}
   - component: {fileID: -3154053657958730159}
+  - component: {fileID: -444246997894155439}
   m_Layer: 0
   m_Name: element_02
   m_TagString: element_02
@@ -153,3 +154,24 @@ MonoBehaviour:
   rowBomb: {fileID: 7547367975328842178, guid: 5aee29072f441274896436cb771f4391, type: 3}
   colorBomb: {fileID: 8035863110815049107, guid: c8e3e660215344e41b14e18c8c543a20, type: 3}
   wrapBomb: {fileID: 687245652069991062, guid: 49134de77e384db4b9ea4e807243ea83, type: 3}
+--- !u!95 &-444246997894155439
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5563854060861856133}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 66171c2455d897540809e791bb9c7407, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 1
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

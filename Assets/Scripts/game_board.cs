@@ -67,7 +67,7 @@ public class game_board : MonoBehaviour
     public int height;
     public int offSet;
 
-    public float refillDelay = .9f;
+    public float refillDelay = .4f;
 
     [Header("Prefabs")]
     public GameObject tilePrefab;
@@ -394,55 +394,47 @@ public class game_board : MonoBehaviour
 
     private void GenBonusCells()
     {
-        for (int i = 0; i < boardLayout.Length; i++)
+        foreach (var layout in boardLayout)
         {
-            //colorBomb
-            if (boardLayout[i].tileKind == TileKind.ColorBomb)
-            {                                     
-                int column = boardLayout[i].x;
-                int row = boardLayout[i].y;
+            int column = layout.x;
+            int row = layout.y;
 
-                //get current dot
-                GameObject currentDot = allDots[column, row];
+            // Get current dot
+            GameObject currentDot = allDots[column, row];
 
-                if (currentDot != null)
-                {
-                    //get dot component
-                    dot curDotGet = currentDot.GetComponent<dot>();
-
-                    if (curDotGet != null)
-                    {
-                        curDotGet.CookColorBomb();                        
-                        curDotGet.isColorBomb = true;                        
-                    }
-                }              
-            }
-
-            //wrap bomb
-            if (boardLayout[i].tileKind == TileKind.WrapBomb)
+            if (currentDot != null)
             {
-                int column = boardLayout[i].x;
-                int row = boardLayout[i].y;
+                // Get dot component
+                dot curDotGet = currentDot.GetComponent<dot>();
 
-                //get current dot
-                GameObject currentDot = allDots[column, row];
-
-                if (currentDot != null)
+                if (curDotGet != null)
                 {
-                    //get dot component
-                    dot curDotGet = currentDot.GetComponent<dot>();
-
-                    if (curDotGet != null)
+                    switch (layout.tileKind)
                     {
-                        curDotGet.CookWrapBomb();
-                        curDotGet.isWrapBomb = true;
+                        case TileKind.ColorBomb:
+                            curDotGet.CookColorBomb();
+                            curDotGet.isColorBomb = true;
+                            break;
+
+                        case TileKind.WrapBomb:
+                            curDotGet.CookWrapBomb();
+                            curDotGet.isWrapBomb = true;
+                            break;
+
+                        case TileKind.RowBomb:
+                            curDotGet.CookRowBomb();
+                            curDotGet.isRowBomb = true;
+                            break;
+
+                        case TileKind.ColumnBomb:
+                            curDotGet.CookColumnBomb();
+                            curDotGet.isColumnBomb = true;
+                            break;
                     }
                 }
             }
-
         }
     }
-
 
     private void FindCorners()
     {
@@ -751,11 +743,15 @@ public class game_board : MonoBehaviour
         // Iterate through each dot in the match
         foreach (GameObject matchObject in matchCopy)
         {
-            dot thisDot = matchObject.GetComponent<dot>();
+            if (matchObject != null)
+            {
+                dot thisDot = matchObject.GetComponent<dot>();
+            
+
             string color = matchObject.tag;  // Get the color from the tag
 
             int column = thisDot.column;
-            int row = thisDot.row;
+            int row = thisDot.row;            
 
             int columnMatch = 0;
             int rowMatch = 0;
@@ -763,21 +759,24 @@ public class game_board : MonoBehaviour
             // Compare with other dots in the match
             foreach (GameObject otherMatchObject in matchCopy)
             {
-                if (otherMatchObject == matchObject)
-                {
-                    continue;
-                }
+                if(otherMatchObject != null)
+                {                     
+                    if (otherMatchObject == matchObject)
+                    {
+                        continue;
+                    }
 
-                dot nextDot = otherMatchObject.GetComponent<dot>();
+                    dot nextDot = otherMatchObject.GetComponent<dot>();
 
-                if (nextDot.column == column && nextDot.CompareTag(color))
-                {
-                    columnMatch++;
-                }
+                    if (nextDot.column == column && nextDot.CompareTag(color))
+                    {
+                        columnMatch++;
+                    }
 
-                if (nextDot.row == row && nextDot.CompareTag(color))
-                {
-                    rowMatch++;
+                    if (nextDot.row == row && nextDot.CompareTag(color))
+                    {
+                        rowMatch++;
+                    }
                 }
             }
 
@@ -800,12 +799,16 @@ public class game_board : MonoBehaviour
                 matchTypeClass.color = color;
                 return matchTypeClass;
             }
+
+            }
         }
 
         // If no match type found, return default
         matchTypeClass.type = 0;
         matchTypeClass.color = "";
         return matchTypeClass;
+
+        
     }
 
 
@@ -939,8 +942,9 @@ public class game_board : MonoBehaviour
             {
                 // Optional: Add any additional logic before destroying the match
                 scoreManagerClass.IncreaseScore(baseValue * streakValue);
-                Destroy(allDots[column, row]);             
-                allDots[column, row] = null;
+                allDots[column, row].GetComponent<dot>().DestroyAnimation();
+                Destroy(allDots[column, row], .5f);             
+                allDots[column, row] = null;                
             }
 
         }
@@ -1185,7 +1189,7 @@ public class game_board : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(0.4f); //refillDelay * 1.0f
+        yield return new WaitForSeconds(refillDelay); //refillDelay * 1.0f
 
         StartCoroutine(FillBoardCo());
     }
@@ -1205,7 +1209,7 @@ public class game_board : MonoBehaviour
                     int dotToUse = UnityEngine.Random.Range(0, dots.Length);
                     int maxIter = 0;
 
-                    while (MatchesAt(i, j, dots[dotToUse]) && maxIter < 200)
+                    while (MatchesAt(i, j, dots[dotToUse]) && maxIter < 100)
                     {
                         dotToUse = UnityEngine.Random.Range(0, dots.Length);
                         maxIter++;
@@ -1276,7 +1280,7 @@ public class game_board : MonoBehaviour
             ShuffleBoard();
         }
 
-        yield return new WaitForSeconds(refillDelay);
+        //yield return new WaitForSeconds(refillDelay);
 
         if(currentState != GameState.pause)
             currentState = GameState.move;

@@ -33,6 +33,13 @@ MonoBehaviour:
   - x: 6
     y: 4
     tileKind: 1
+  - x: 2
+    y: 5
+    tileKind: 8
+  - x: 4
+    y: 5
+    tileKind: 9
+  preloadBoardLayout: []
   dots:
   - {fileID: 5563854060861856133, guid: 499c3350e0d36e546af3136857bb4354, type: 3}
   - {fileID: 3208557242404312580, guid: 9042c7df9b5a7124bbea3b9e51471a95, type: 3}
@@ -43,6 +50,6 @@ MonoBehaviour:
     counterValue: 22
   levelGoals:
   - numberGoalsNeeded: 6
-    numberCollectedGoals: 6
-    goalSprite: {fileID: 21300000, guid: 1cd7535b402ed604f9fee29df6806429, type: 3}
+    numberCollectedGoals: 0
+    goalSprite: {fileID: 21300000, guid: 0136faf840e4137409b3b10b24f05f55, type: 3}
     matchValue: line_bomb

@@ -161,10 +161,10 @@ MonoBehaviour:
     counterValue: 15
   levelGoals:
   - numberGoalsNeeded: 24
-    numberCollectedGoals: 9
+    numberCollectedGoals: 0
     goalSprite: {fileID: 21300000, guid: f5d7abee0f1daa24c8c8ee29a82b41dc, type: 3}
     matchValue: blocker_01
   - numberGoalsNeeded: 3
     numberCollectedGoals: 0
-    goalSprite: {fileID: 21300000, guid: 2c27d25e05d7c954987fcfe692748852, type: 3}
+    goalSprite: {fileID: 21300000, guid: 57f04646069692845bed8efec84ad72e, type: 3}
     matchValue: WrapBomb

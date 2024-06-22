@@ -13,6 +13,8 @@ public class dot : MonoBehaviour
     private hint_manager hintManagerClass;
     private end_game_manager endGameManagerClass;
 
+    private float movementSpeed = 20.0f;
+
     private Vector2 tempPos;
     public GameObject otherDot;
 
@@ -25,6 +27,9 @@ public class dot : MonoBehaviour
     public int previousColumn, previousRow;
     public int column, row;
     public int targetX, targetY;
+
+    [Header("Animation")]
+    private Animator animatorDot;
 
     [Header("Swipe Stuff")]
     public float swipeAngle = 0;
@@ -45,20 +50,24 @@ public class dot : MonoBehaviour
     public GameObject colorBomb;
     public GameObject wrapBomb;
 
+    private float lastCallTime; // Track the last time the function was called
+
     // Start is called before the first frame update
     void Start()
     {
+        animatorDot = GetComponent<Animator>();
+
         //classes
         gameBoardClass = GameObject.FindWithTag("GameBoard").GetComponent<game_board>();
         findMatchesClass = FindObjectOfType<find_matches>();
         hintManagerClass = FindObjectOfType<hint_manager>();
-        endGameManagerClass = FindObjectOfType<end_game_manager>();
+        endGameManagerClass = FindObjectOfType<end_game_manager>();        
 
         //false bomb
-/*        isColumnBomb  = false;
-        isRowBomb = false;
-        isColorBomb = false;
-        isWrapBomb = false;*/
+        /*        isColumnBomb  = false;
+                isRowBomb = false;
+                isColorBomb = false;
+                isWrapBomb = false;*/
     }
 
 
@@ -68,42 +77,52 @@ public class dot : MonoBehaviour
         targetX = column;
         targetY = row;
 
-        //Pos X
-        if (Mathf.Abs(targetX - transform.position.x) > .1)
+        Vector2 targetPosition = new Vector2(targetX, targetY);
+
+        // Move towards the target position
+        if (Vector2.Distance(transform.position, targetPosition) > 0.1f)
         {
-            //Move Toward the target
-            tempPos = new Vector2(targetX, transform.position.y);
-            transform.position = Vector2.Lerp(transform.position, tempPos, .9f);
-                
-            if (gameBoardClass.allDots[column, row] != this.gameObject)
+            transform.position = Vector2.Lerp(transform.position, targetPosition, movementSpeed * Time.deltaTime);
+        }
+        else
+        {
+            transform.position = targetPosition;
+
+            if (gameBoardClass.currentState == GameState.wait)
             {
-                gameBoardClass.allDots[column, row] = this.gameObject;
-                findMatchesClass.FindAllMatches();
-            }            
-        } else {
-            //directly set pos
-            tempPos = new Vector2(targetX, transform.position.y);
-            transform.position = tempPos;
+                CallFunctionOncePerSecond();
+            }
+
         }
 
-        //Pos Y
-        if (Mathf.Abs(targetY - transform.position.y) > .1)
+        // Update the game board only when the position changes
+        if (gameBoardClass.allDots[column, row] != this.gameObject)
         {
-            //Move Toward the target
-            tempPos = new Vector2(transform.position.x, targetY);
-            transform.position = Vector2.Lerp(transform.position, tempPos, .9f);
-
-            if (gameBoardClass.allDots[column, row] != this.gameObject)
-            {
-                gameBoardClass.allDots[column, row] = this.gameObject;
-                findMatchesClass.FindAllMatches();
-            }            
-        } else {
-            //directly set pos
-            tempPos = new Vector2(transform.position.x, targetY);
-            transform.position = tempPos;
+            gameBoardClass.allDots[column, row] = this.gameObject;
+            findMatchesClass.FindAllMatches();            
         }
     }
+
+
+    void CallFunctionOncePerSecond()
+    {
+        // Check if at least one second has passed since the last call
+        if (Time.time - lastCallTime >= 5.0f)
+        {
+            findMatchesClass.FindAllMatches();
+            lastCallTime = Time.time; // Update the last call time
+        }
+    }
+
+    public void DestroyAnimation()
+    {
+        if(animatorDot != null)
+        {
+            animatorDot.SetBool("Destroy", true);
+        }
+        
+    }
+
 
     public IEnumerator CheckMoveCo()
     {
@@ -118,7 +137,7 @@ public class dot : MonoBehaviour
             otherDot.GetComponent<dot>().isMatched = true;
         }
         
-        yield return new WaitForSeconds(.3f);
+        yield return new WaitForSeconds(.1f);
 
         if (otherDot != null)
         {
@@ -130,7 +149,7 @@ public class dot : MonoBehaviour
                 row = previousRow;
                 column = previousColumn;
 
-                yield return new WaitForSeconds(.3f);
+                yield return new WaitForSeconds(.1f);
 
                 gameBoardClass.currentDot = null;
                 gameBoardClass.currentState = GameState.move;
@@ -147,6 +166,8 @@ public class dot : MonoBehaviour
                 }
 
                 gameBoardClass.DestroyMatches();
+
+                findMatchesClass.FindAllMatches();
             }
 
         }
@@ -160,6 +181,11 @@ public class dot : MonoBehaviour
             hintManagerClass.DestroyHint();
         }
 
+        if (animatorDot != null)
+        {
+            animatorDot.SetBool("Touched", true);
+        }
+
         //set position
         if (gameBoardClass.currentState == GameState.move)
         {
@@ -170,6 +196,11 @@ public class dot : MonoBehaviour
 
     private void OnMouseUp()
     {
+        if (animatorDot != null)
+        {
+            animatorDot.SetBool("Touched", false);
+        }
+
         if (gameBoardClass.currentState == GameState.move)
         {
             finalTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -189,9 +220,7 @@ public class dot : MonoBehaviour
 
             MoveElement();
 
-            gameBoardClass.currentDot = this;
-
-            //Debug.Log("move dot: " + this.name);
+            gameBoardClass.currentDot = this;            
         }
         else
         {
@@ -268,8 +297,8 @@ public class dot : MonoBehaviour
             bombC.transform.parent = this.transform;
             bombC.name = this.name + "_columnb";
 
+            //for mask
             GameObject childObject = FindChildByName(transform, "mask");
-
             if (childObject != null)
             {
                 SpriteMask mask = childObject.GetComponent<SpriteMask>();
@@ -288,6 +317,7 @@ public class dot : MonoBehaviour
             bombR.transform.parent = this.transform;
             bombR.name = this.name + "_rowb";
 
+            //for mask
             GameObject childObject = FindChildByName(transform, "mask");
             if (childObject != null)
             {
@@ -325,14 +355,13 @@ public class dot : MonoBehaviour
             wrap.transform.parent = this.transform;
             wrap.name = this.name + "_wbomb";
 
-            Color objColor = this.GetComponent<dot>().objColor;
+/*            Color objColor = this.GetComponent<dot>().objColor;
             Color modifiedColor = objColor; //fix alpha
             modifiedColor.a = 1.0f;
 
             //set color of object
             SpriteRenderer wrapSpriteRenderer = wrap.GetComponent<SpriteRenderer>();           
-
-            wrapSpriteRenderer.color = modifiedColor;
+            wrapSpriteRenderer.color = modifiedColor;*/
 
 
             GameObject childObject = FindChildByName(transform, "wrap_effect");
@@ -352,11 +381,11 @@ public class dot : MonoBehaviour
             childObject.name = this.name + "_wrap_effect";
            
             //turn off under sprite
-            SpriteRenderer spriteRenderer = this.GetComponent<SpriteRenderer>();
+/*            SpriteRenderer spriteRenderer = this.GetComponent<SpriteRenderer>();
             if (spriteRenderer != null)
             {
                 spriteRenderer.enabled = false;              
-            }
+            }*/
         }
     }
 
