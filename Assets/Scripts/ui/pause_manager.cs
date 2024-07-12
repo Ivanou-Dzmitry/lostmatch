@@ -1,86 +1,165 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class pause_manager : MonoBehaviour
 {
-    public GameObject pausePanel;
+    public GameObject usedPanel;
     private game_board gameBoardClass;
     public bool paused = false;
 
+    private game_data gameDataClass;
+    private sound_manager soundManagerClass;
+
+    public string sceneName;
+
+    [Header("Sound")]
     public Button soundButton;
     public Sprite soundOnSprite;
     public Sprite soundOffSprite;
+    public Slider soundSlider;
+
+    [Header("Music")]
+    public Button musicButton;
+    public Sprite musicOnSprite;
+    public Sprite musicOffSprite;
+    public Slider musicSlider;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        pausePanel.SetActive(false);
+        GameObject gameDataObject = GameObject.FindWithTag("GameData");
+        gameDataClass = gameDataObject.GetComponent<game_data>();
 
-        gameBoardClass = GameObject.FindWithTag("GameBoard").GetComponent<game_board>();
-        
+        soundManagerClass = GameObject.FindWithTag("SoundManager").GetComponent<sound_manager>();
 
-        if (PlayerPrefs.HasKey("Sound"))
+        if (gameDataClass != null)
         {
-            if(PlayerPrefs.GetInt("Sound") == 0)
-            {                
-                soundButton.image.sprite = soundOffSprite;
-            }
-            else
-            {
-                soundButton.image.sprite = soundOnSprite;
-            }
+            LoadData();
+        }
+
+        usedPanel.SetActive(false);
+
+        Scene currentScene = SceneManager.GetActiveScene();
+        sceneName = currentScene.name;
+
+        if (sceneName == "game_scene")
+        {
+            gameBoardClass = GameObject.FindWithTag("GameBoard").GetComponent<game_board>();
+        }
+
+    }
+
+
+    private void LoadData()
+    {
+        //Debug.Log(gameDataClass.saveData.soundToggle + "/" + gameDataClass.saveData.musicToggle);
+
+        //set sound
+        if (gameDataClass.saveData.soundToggle)
+        {
+            soundButton.image.sprite = soundOnSprite;
+            soundSlider.interactable = true;
         }
         else
         {
-            soundButton.image.sprite = soundOnSprite;
+            soundButton.image.sprite = soundOffSprite;
+            soundSlider.interactable = false;
         }
+
+        //set music
+        if (gameDataClass.saveData.musicToggle)
+        {
+            musicButton.image.sprite = musicOnSprite;
+            musicSlider.interactable = true;
+        }
+        else
+        {
+            musicButton.image.sprite = musicOffSprite;
+            musicSlider.interactable = false;
+        }
+
+        //load volume
+        soundSlider.value = gameDataClass.saveData.soundVolume;
+        musicSlider.value = gameDataClass.saveData.musicVolume;
+
     }
+
 
     public void SoundButton()
     {
-        if (PlayerPrefs.HasKey("Sound"))
+        if (!gameDataClass.saveData.soundToggle)
         {
-            if (PlayerPrefs.GetInt("Sound") == 0)
-            {
-                soundButton.image.sprite = soundOnSprite;
-                PlayerPrefs.SetInt("Sound", 1);
-            }
-            else
-            {
-                soundButton.image.sprite = soundOffSprite;
-                PlayerPrefs.SetInt("Sound", 0);
-            }
+            gameDataClass.saveData.soundToggle = true;
+            soundButton.image.sprite = soundOnSprite;
+            soundSlider.interactable = true;
         }
         else
         {
-            soundButton.image.sprite = soundOnSprite;
-            PlayerPrefs.SetInt("Sound", 1);
+            gameDataClass.saveData.soundToggle = false;
+            soundButton.image.sprite = soundOffSprite;
+            soundSlider.interactable = false;
         }
+        
     }
+
+    public void MusicButton()
+    {
+        if (!gameDataClass.saveData.musicToggle)
+        {
+            gameDataClass.saveData.musicToggle = true;
+            musicButton.image.sprite = musicOnSprite;
+            musicSlider.interactable = true;
+        }
+        else
+        {
+            gameDataClass.saveData.musicToggle = false;
+            musicButton.image.sprite = musicOffSprite;
+            musicSlider.interactable = false;
+        }                
+    }
+
 
     // Update is called once per frame
     void Update()
     {
-        if (paused && !pausePanel.activeInHierarchy)
+        if (sceneName == "game_scene")
         {
-            pausePanel.SetActive(true);
-            gameBoardClass.currentState = GameState.pause;
-        }
+            if (paused && !usedPanel.activeInHierarchy)
+            {
+                usedPanel.SetActive(true);
+                gameBoardClass.currentState = GameState.pause;
+            }
 
-        if (!paused && pausePanel.activeInHierarchy)
-        {
-            pausePanel.SetActive(false);
-            gameBoardClass.currentState = GameState.move;
+            if (!paused && usedPanel.activeInHierarchy)
+            {
+                usedPanel.SetActive(false);
+                gameBoardClass.currentState = GameState.move;
+            }
         }
 
     }
 
     public void PauseGame()
     {
+        Scene currentScene = SceneManager.GetActiveScene();
         paused = !paused;
     }
+
+    public void SoundVolume()
+    {
+        gameDataClass.saveData.soundVolume = soundSlider.value;
+        soundManagerClass.SetVolume("sound");       
+    }
+
+    public void MusicVolume()
+    {
+        gameDataClass.saveData.musicVolume = musicSlider.value;
+        soundManagerClass.SetVolume("music");
+    }
+
 
 }

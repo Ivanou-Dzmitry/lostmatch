@@ -119,8 +119,7 @@ public class dot : MonoBehaviour
         if(animatorDot != null)
         {
             animatorDot.SetBool("Destroy", true);
-        }
-        
+        }    
     }
 
 

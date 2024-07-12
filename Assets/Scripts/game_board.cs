@@ -151,6 +151,7 @@ public class game_board : MonoBehaviour
     private int matchForWrapBomb = 2;
     private int matchForColorBomb = 3;
 
+    private AudioClip _audioClip;
 
     private void Awake()
     {
@@ -864,6 +865,20 @@ public class game_board : MonoBehaviour
         }
     }
 
+    private void PlaySound(string soundName)
+    {
+        //sound
+        if (soundManagerClass != null)
+        {
+            _audioClip = (AudioClip)Resources.Load("Sounds/VFX/" + soundName); //destroy sound
+
+            if (sound_manager.Instance != null)
+            {
+                sound_manager.Instance.PlaySound(_audioClip);
+            }
+        }
+    }
+
     private void DestroyMatchesAt(int column, int row)
     {        
         if (allDots[column, row].GetComponent<dot>().isMatched)
@@ -880,7 +895,7 @@ public class game_board : MonoBehaviour
 
                 if (breakableCells[column, row].hitPoints <= 0)
                 {
-                    tile_back currentBreak01 = breakableCells[column, row];
+                    tile_back currentBreak01 = breakableCells[column, row];                    
 
                     //particles for break
                     GameObject break01Part = Instantiate(currentBreak01.destroyParticle, allDots[column, row].transform.position, Quaternion.identity);
@@ -926,12 +941,7 @@ public class game_board : MonoBehaviour
                 goalManagerClass.UpdateGoals();    
             }
 
-
-            //sound
-            if (soundManagerClass != null)
-            {
-                soundManagerClass.PlayDestroySound();
-            }    
+            PlaySound("vfx_sound_02");
 
             //particles
             GameObject particleDot = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
@@ -949,6 +959,8 @@ public class game_board : MonoBehaviour
 
         }
     }
+
+
 
     //for bomb for concrete
     public void BombRow(int row)
@@ -1007,7 +1019,9 @@ public class game_board : MonoBehaviour
 
                 // Log the current blocker
                 tile_back currentBlocker = blocker01Cells[column, row];
-                
+
+                PlaySound("vfx_sound_01");
+
                 //particles for break
                 GameObject blocker01Part = Instantiate(currentBlocker.destroyParticle, blocker01Cells[column, row].transform.position, Quaternion.identity);
                 Destroy(blocker01Part, 0.9f);

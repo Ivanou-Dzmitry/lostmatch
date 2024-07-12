@@ -13,6 +13,10 @@ public class SaveData
     public bool[] isActive;
     public int[] highScore;
     public int[] stars;
+    public bool soundToggle;
+    public bool musicToggle;
+    public float soundVolume;
+    public float musicVolume;
 }
 
 public class game_data : MonoBehaviour
@@ -22,6 +26,7 @@ public class game_data : MonoBehaviour
 
     //public SaveData saveData = new SaveData();
 
+    //path \AppData\LocalLow\frosofco\LostMatch
     public string fileName = "player_saves.json";    
     public TMP_Text debugText;
 
@@ -78,6 +83,10 @@ public class game_data : MonoBehaviour
         saveData.stars = new int[11];
         saveData.highScore = new int[11];
         saveData.isActive[0] = true;
+        saveData.soundToggle = true;
+        saveData.musicToggle = true;
+        saveData.soundVolume = 1.0f;
+        saveData.musicVolume = 0.5f;
     }
 
     public void DebugText(string text)
