@@ -161,5 +161,21 @@ public class pause_manager : MonoBehaviour
         soundManagerClass.SetVolume("music");
     }
 
+    public void MuteSound(bool muted)
+    {
+        GameObject gameObject = GameObject.FindWithTag("EffectSource");
+        AudioSource audioSource = gameObject.GetComponent<AudioSource>();
+
+        audioSource.mute = !audioSource.mute;
+    }
+
+    public void MuteMusic(bool muted)
+    {
+        GameObject gameObject = GameObject.FindWithTag("MusicSource");
+        AudioSource audioSource = gameObject.GetComponent<AudioSource>();
+
+        audioSource.mute = !audioSource.mute;
+    }
+
 
 }

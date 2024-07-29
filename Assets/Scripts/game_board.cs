@@ -414,21 +414,25 @@ public class game_board : MonoBehaviour
                     {
                         case TileKind.ColorBomb:
                             curDotGet.CookColorBomb();
+                            curDotGet.dotSound = curDotGet.colorBombSound;
                             curDotGet.isColorBomb = true;
                             break;
 
                         case TileKind.WrapBomb:
                             curDotGet.CookWrapBomb();
+                            curDotGet.dotSound = curDotGet.wrapBombSound;
                             curDotGet.isWrapBomb = true;
                             break;
 
                         case TileKind.RowBomb:
                             curDotGet.CookRowBomb();
+                            curDotGet.dotSound = curDotGet.rowBombSound; // sound
                             curDotGet.isRowBomb = true;
                             break;
 
                         case TileKind.ColumnBomb:
                             curDotGet.CookColumnBomb();
+                            curDotGet.dotSound = curDotGet.colBombSound; //sound
                             curDotGet.isColumnBomb = true;
                             break;
                     }
@@ -834,11 +838,13 @@ public class game_board : MonoBehaviour
                         {
                             currentDot.isMatched = false;
                             currentDot.CookColorBomb();
+                            currentDot.dotSound = currentDot.colorBombSound; // sound
                         }
                         else if (otherDotMatched)
                         {
                             otherDot.isMatched = false;
                             otherDot.CookColorBomb();
+                            otherDot.dotSound= otherDot.colorBombSound; // sound
                         }
                         break;
                     case 2:
@@ -847,11 +853,13 @@ public class game_board : MonoBehaviour
                         {
                             currentDot.isMatched = false;
                             currentDot.CookWrapBomb();
+                            currentDot.dotSound = currentDot.wrapBombSound; // sound
                         }
                         else if (otherDotMatched)
                         {
                             otherDot.isMatched = false;
                             otherDot.CookWrapBomb();
+                            otherDot.dotSound = otherDot.wrapBombSound; // sound
                         }
                         break;
                     case 3:
@@ -865,12 +873,13 @@ public class game_board : MonoBehaviour
         }
     }
 
-    private void PlaySound(string soundName)
+    private void PlaySound(AudioClip sound)
     {
         //sound
         if (soundManagerClass != null)
         {
-            _audioClip = (AudioClip)Resources.Load("Sounds/VFX/" + soundName); //destroy sound
+         
+            _audioClip = sound;
 
             if (sound_manager.Instance != null)
             {
@@ -895,7 +904,13 @@ public class game_board : MonoBehaviour
 
                 if (breakableCells[column, row].hitPoints <= 0)
                 {
-                    tile_back currentBreak01 = breakableCells[column, row];                    
+                    tile_back currentBreak01 = breakableCells[column, row];
+
+                    //sound
+                    if (curDotGet.dotSound != null)
+                    {
+                        PlaySound(currentBreak01.dotSound);
+                    }
 
                     //particles for break
                     GameObject break01Part = Instantiate(currentBreak01.destroyParticle, allDots[column, row].transform.position, Quaternion.identity);
@@ -941,7 +956,12 @@ public class game_board : MonoBehaviour
                 goalManagerClass.UpdateGoals();    
             }
 
-            PlaySound("vfx_sound_02");
+            //sound
+            if (curDotGet.dotSound !=  null)
+            {
+                PlaySound(curDotGet.dotSound);
+            }
+            
 
             //particles
             GameObject particleDot = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
@@ -1020,7 +1040,11 @@ public class game_board : MonoBehaviour
                 // Log the current blocker
                 tile_back currentBlocker = blocker01Cells[column, row];
 
-                PlaySound("vfx_sound_01");
+                if(currentBlocker.dotSound != null)
+                {
+                    PlaySound(currentBlocker.dotSound);
+                }
+                
 
                 //particles for break
                 GameObject blocker01Part = Instantiate(currentBlocker.destroyParticle, blocker01Cells[column, row].transform.position, Quaternion.identity);

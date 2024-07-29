@@ -14,7 +14,10 @@ public class tile_back : MonoBehaviour
     [Header("Layers")]
     public GameObject objLayer02;
     public GameObject objLayer03;
-    
+
+    [Header("Sound")]
+    public AudioClip dotSound;
+
 
     private void Start()
     {

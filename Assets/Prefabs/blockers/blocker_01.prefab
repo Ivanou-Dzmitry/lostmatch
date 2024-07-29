@@ -101,3 +101,4 @@ MonoBehaviour:
   destroyParticle: {fileID: 5804476535608525528, guid: 776cde81936a4544192e88c6bc553b8a, type: 3}
   objLayer02: {fileID: 0}
   objLayer03: {fileID: 0}
+  dotSound: {fileID: 8300000, guid: 096dc17e83fa9fa478a752cd3f5c93da, type: 3}

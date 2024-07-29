@@ -1575,7 +1575,7 @@ RectTransform:
   m_Father: {fileID: 361628874}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2320,8 +2320,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 1321914045}
-        m_TargetAssemblyTypeName: sound_manager, Assembly-CSharp
+      - m_Target: {fileID: 1157401111}
+        m_TargetAssemblyTypeName: pause_manager, Assembly-CSharp
         m_MethodName: MuteSound
         m_Mode: 6
         m_Arguments:
@@ -2613,7 +2613,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &739112311
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3104,7 +3104,7 @@ RectTransform:
   m_Father: {fileID: 802289279}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.25, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4408,7 +4408,7 @@ GameObject:
   - component: {fileID: 1364250630}
   m_Layer: 0
   m_Name: MusicSource
-  m_TagString: Untagged
+  m_TagString: MusicSource
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4656,8 +4656,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 1321914045}
-        m_TargetAssemblyTypeName: sound_manager, Assembly-CSharp
+      - m_Target: {fileID: 1157401111}
+        m_TargetAssemblyTypeName: pause_manager, Assembly-CSharp
         m_MethodName: MuteMusic
         m_Mode: 6
         m_Arguments:
@@ -5598,8 +5598,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 530178009}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.25, y: 0}
-  m_AnchorMax: {x: 0.25, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 64, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -6161,7 +6161,7 @@ GameObject:
   - component: {fileID: 2035483689}
   m_Layer: 0
   m_Name: EffectsSource
-  m_TagString: Untagged
+  m_TagString: EffectSource
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6384,8 +6384,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 362101262}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 64, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

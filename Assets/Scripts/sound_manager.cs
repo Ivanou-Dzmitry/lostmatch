@@ -12,17 +12,21 @@ public class sound_manager : MonoBehaviour
     private AudioClip _clip;
 
     private game_data gameDataClass;
+    private pause_manager setManageClass;
+
 
     private void Start()
     {
         GameObject gameDataObject = GameObject.FindWithTag("GameData");
         gameDataClass = gameDataObject.GetComponent<game_data>();
 
+        GameObject setManageObject = GameObject.FindWithTag("SettingsManager");
+        setManageClass = setManageObject.GetComponent<pause_manager>();
+
         if (gameDataClass != null)
         {
             LoadData();
         }
-
     }
 
 
@@ -31,13 +35,13 @@ public class sound_manager : MonoBehaviour
         //load data
         if (!gameDataClass.saveData.soundToggle)
         {
-            MuteSound(true);
+            setManageClass.MuteSound(true);
         }
 
 
         if (!gameDataClass.saveData.musicToggle)
         {
-            MuteMusic(true);
+            setManageClass.MuteMusic(true);
         }
 
         //load vol
@@ -85,14 +89,6 @@ public class sound_manager : MonoBehaviour
         AudioListener.volume = volume;
     }
 
-    public void MuteSound(bool muted)
-    {
-        _effectsSource.mute = !_effectsSource.mute;
-    }
 
-    public void MuteMusic(bool muted)
-    {
-        _musicSource.mute = !_musicSource.mute;
-    }
 
 }

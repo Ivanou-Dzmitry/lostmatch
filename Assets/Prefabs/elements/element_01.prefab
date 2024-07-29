@@ -150,6 +150,11 @@ MonoBehaviour:
   isColorBomb: 0
   isWrapBomb: 0
   objColor: {r: 0.38431373, g: 0.8392157, b: 0.43137255, a: 1}
+  dotSound: {fileID: 8300000, guid: 5ccb49a9fd3f0ad458e9918f2a5f2594, type: 3}
+  colBombSound: {fileID: 8300000, guid: d9d0764935ca3f6459589e327dfa2531, type: 3}
+  rowBombSound: {fileID: 8300000, guid: d9d0764935ca3f6459589e327dfa2531, type: 3}
+  colorBombSound: {fileID: 8300000, guid: 6a0ef26f664c27e4eafcb366682a5f05, type: 3}
+  wrapBombSound: {fileID: 8300000, guid: b2a278327e6d6394c9f31a9686c28521, type: 3}
   columnBomb: {fileID: 3152508539919811968, guid: 9e59ef1c65646ae479c418f5eb2ed680, type: 3}
   rowBomb: {fileID: 7547367975328842178, guid: 5aee29072f441274896436cb771f4391, type: 3}
   colorBomb: {fileID: 8035863110815049107, guid: c8e3e660215344e41b14e18c8c543a20, type: 3}

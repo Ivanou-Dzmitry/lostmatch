@@ -514,7 +514,7 @@ GameObject:
   - component: {fileID: 125446961}
   m_Layer: 0
   m_Name: EffectsSource
-  m_TagString: Untagged
+  m_TagString: EffectSource
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -977,7 +977,7 @@ GameObject:
   - component: {fileID: 324983340}
   m_Layer: 0
   m_Name: PauseManager
-  m_TagString: Untagged
+  m_TagString: SettingsManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4656,8 +4656,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1721742030}
-        m_TargetAssemblyTypeName: sound_manager, Assembly-CSharp
+      - m_Target: {fileID: 324983340}
+        m_TargetAssemblyTypeName: pause_manager, Assembly-CSharp
         m_MethodName: MuteMusic
         m_Mode: 6
         m_Arguments:
@@ -4666,7 +4666,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1585955465
 MonoBehaviour:
@@ -4974,8 +4974,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1721742030}
-        m_TargetAssemblyTypeName: sound_manager, Assembly-CSharp
+      - m_Target: {fileID: 324983340}
+        m_TargetAssemblyTypeName: pause_manager, Assembly-CSharp
         m_MethodName: MuteSound
         m_Mode: 6
         m_Arguments:
@@ -4984,7 +4984,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1641381382
 MonoBehaviour:
@@ -5402,7 +5402,7 @@ GameObject:
   - component: {fileID: 1682016568}
   m_Layer: 0
   m_Name: MusicSource
-  m_TagString: Untagged
+  m_TagString: MusicSource
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

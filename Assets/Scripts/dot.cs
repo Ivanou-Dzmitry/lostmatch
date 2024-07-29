@@ -45,6 +45,14 @@ public class dot : MonoBehaviour
     [Header("Color")]
     public Color objColor; //for colorize wrap
 
+    [Header("Sound")]
+    public AudioClip dotSound;
+    public AudioClip colBombSound;
+    public AudioClip rowBombSound;
+    public AudioClip colorBombSound;
+    public AudioClip wrapBombSound;
+
+    [Header("Bombs")]
     public GameObject columnBomb;
     public GameObject rowBomb;
     public GameObject colorBomb;

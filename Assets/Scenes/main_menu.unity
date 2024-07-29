@@ -536,8 +536,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2091019385}
-        m_TargetAssemblyTypeName: sound_manager, Assembly-CSharp
+      - m_Target: {fileID: 561237203}
+        m_TargetAssemblyTypeName: pause_manager, Assembly-CSharp
         m_MethodName: MuteSound
         m_Mode: 6
         m_Arguments:
@@ -5985,7 +5985,7 @@ GameObject:
   - component: {fileID: 561237203}
   m_Layer: 0
   m_Name: SettingsManager
-  m_TagString: Untagged
+  m_TagString: SettingsManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6636,8 +6636,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2091019385}
-        m_TargetAssemblyTypeName: sound_manager, Assembly-CSharp
+      - m_Target: {fileID: 561237203}
+        m_TargetAssemblyTypeName: pause_manager, Assembly-CSharp
         m_MethodName: MuteMusic
         m_Mode: 6
         m_Arguments:
@@ -7929,7 +7929,7 @@ GameObject:
   - component: {fileID: 1426675950}
   m_Layer: 0
   m_Name: MusicSource
-  m_TagString: Untagged
+  m_TagString: MusicSource
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7944,7 +7944,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: acd16b964db840e43aa4a9481fd2a2ff, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 2eaeb543584c1a4468f0ca3f89860bbd, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.25
   m_Pitch: 1
@@ -8462,7 +8462,7 @@ GameObject:
   - component: {fileID: 1706547529}
   m_Layer: 0
   m_Name: EffectsSource
-  m_TagString: Untagged
+  m_TagString: EffectSource
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

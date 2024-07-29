@@ -350,10 +350,12 @@ public class find_matches : MonoBehaviour
                     if ((angle2 > -45 && angle2 <= 45) || (angle2 < -135 || angle2 >= 135))
                     {
                         otherDot.CookRowBomb();
+                        otherDot.dotSound = otherDot.rowBombSound; // sound
                     }
                     else
                     {
                         otherDot.CookColumnBomb();
+                        otherDot.dotSound = otherDot.colBombSound; //sound
                     }
                 }
             }
